@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (keyCode == 66) {
                     pinCodeEditText.requestFocus();
                 }
-                return true;
+                return false;
             }
         });
         pinCodeEditText.setOnKeyListener(new View.OnKeyListener() {
@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
                     // Send the post request to login the user
                     logIn();
                 }
-                return true;
+                return false;
             }
         });
 

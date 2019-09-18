@@ -137,6 +137,20 @@ public class JobInfoActivity extends LoggedInActivity {
                         TextUtils.isEmpty(plannedCycleTimeEditText.getText().toString()) ||
                         TextUtils.isEmpty(plannedCycleQuantityEditText.getText().toString())) {
             Toast.makeText(getApplicationContext(), "All fields are not filled in", Toast.LENGTH_SHORT).show();
+            // Reset the key listener on the last edittext.
+            // It's disabled after being clicked to stop double presses
+            plannedCycleQuantityEditText.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if(keyCode==66){
+                        // Prevent this from being clicked again
+                        plannedCycleQuantityEditText.setOnKeyListener(null);
+                        // Send the post request to start the job
+                        startJob();
+                    }
+                    return false;
+                }
+            });
             return;
         }
 
@@ -168,10 +182,12 @@ public class JobInfoActivity extends LoggedInActivity {
                                     Toast.makeText(getApplicationContext(),
                                             response.getString("reason"),
                                             Toast.LENGTH_SHORT).show();
+                                    finish();
                                 }
                             } catch (JSONException e) {
                                 Log.v(TAG, e.toString());
                                 Log.v(TAG, "Failed parsing server response: " + response.toString());
+                                finish();
                             }
 
                         }
@@ -180,6 +196,7 @@ public class JobInfoActivity extends LoggedInActivity {
                 public void onErrorResponse(VolleyError error) {
                     Log.v("ErrorListener", String.valueOf(error));
                     Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
+                    finish();
                 }
             });
 
@@ -187,6 +204,7 @@ public class JobInfoActivity extends LoggedInActivity {
         } catch (Exception e) {
             if (e.getMessage() != null) {
                 Log.e(TAG, e.getMessage());
+                finish();
             }
         }
     }

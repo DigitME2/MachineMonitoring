@@ -36,10 +36,12 @@ public class EndActivityResponseListener implements Response.Listener<JSONObject
                 Toast.makeText(mActivity.getApplicationContext(),
                         response.getString("reason"),
                         Toast.LENGTH_SHORT).show();
+                mActivity.finish();
             }
         } catch (JSONException e) {
             Log.v("ServerResponseListener", e.toString());
             Log.v("ServerResponseListener", "Failed parsing server response: " + response.toString());
+            mActivity.finish();
         }
     }
 }

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context="uk.co.digitme.machinemonitoring.SettingsActivity">
+
+    <Switch
+        android:id="@+id/lock_task_switch"
+        android:padding="@dimen/settings_activity_text_padding"
+        android:text="@string/lock_task_mode"
+        android:textSize="@dimen/job_info_activity_text_size"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/server_address_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/job_info_activity_text_padding"
+            android:text="@string/server_address_textview"
+            android:textSize="@dimen/job_info_activity_text_size"
+            app:layout_constraintLeft_toLeftOf="parent" />
+
+        <EditText
+            android:id="@+id/server_address_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:hint="@string/server_address_hint"
+            android:imeOptions="actionNext"
+            android:inputType="number|numberDecimal"
+            android:digits="0123456789."
+            android:nextFocusDown="@+id/data_entry_2"
+            android:padding="@dimen/job_info_activity_text_padding"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textSize="@dimen/job_info_activity_edittext_size" />
+
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/save_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/save"/>
+
+</LinearLayout>
+

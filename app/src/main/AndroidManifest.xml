@@ -14,7 +14,6 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".SettingsActivity"></activity>
         <activity android:name=".JobNumberActivity" />
-        <activity android:name=".JobPausedActivity" />
         <activity android:name=".JobInProgressActivity" />
         <activity
             android:name=".LoginActivity"

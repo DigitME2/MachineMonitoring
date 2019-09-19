@@ -139,41 +139,31 @@ public class MainActivity extends AppCompatActivity {
                                     // There is an active job, running on this device/machine
                                     // Launch the job in progress activity
                                     String colour;
+                                    String currentActivity;
                                     try {
                                         jobNumber = response.getString("wo_number");
                                         colour = response.getString("colour");
+                                        currentActivity = response.getString("current_activity");
                                     } catch (JSONException je){
+                                        // Replace with default values to prevent crash
                                         jobNumber = "";
-                                        colour = "#00ff80";  //#00ff80 is green
+                                        colour="#ffffff";
+                                        currentActivity = "uptime";
                                     }
                                     Log.d(TAG, "State: job active, Job:" + jobNumber);
                                     Intent activeJobIntent = new Intent(getApplicationContext(), JobInProgressActivity.class);
+                                    // The activity requires possible downtime reasons to populate a dropdown
+                                    ArrayList<String> reasons = parseJsonList(response, "activity_codes");
+                                    activeJobIntent.putExtra("activityCodes", reasons);
+                                    // Send the current activity to set the spinner on
+                                    activeJobIntent.putExtra("currentActivity",  currentActivity);
+                                    // The activity shows the job number on the action bar
                                     activeJobIntent.putExtra("jobNumber", jobNumber);
+                                    // The activity's background changes depending on the activity
                                     activeJobIntent.putExtra("colour", colour);
                                     startActivity(activeJobIntent);
                                     break;
-                                case "paused_job":
-                                    // There is a job on this machine that is currently paused
-                                    // Show the paused job screen
-                                    try {
-                                        jobNumber = response.getString("wo_number");
-                                    } catch (JSONException je){
-                                        jobNumber = "";
-                                    }
-                                    Log.d(TAG, "State: job paused");
-                                    Intent pausedJobIntent = new Intent(getApplicationContext(), JobPausedActivity.class);
-                                    // The pause screen requires possible downtime reasons to populate a dropdown
-                                    ArrayList<String> reasons = parseJsonList(response, "downtime_reasons");
-                                    pausedJobIntent.putExtra("downtimeReasons", reasons);
 
-                                    // The pause screen's background changes depending on the activity
-                                    ArrayList<String> colours = parseJsonList(response, "colours");
-                                    pausedJobIntent.putExtra("colours", colours);
-
-                                    // The pause screen displays the job number at the top
-                                    pausedJobIntent.putExtra("jobNumber", jobNumber);
-                                    startActivity(pausedJobIntent);
-                                    break;
                                 default:
                                     // If the state is not understood, tell the user and show the
                                     // buttons to retry/change server address

@@ -36,6 +36,8 @@ public abstract class LoggedInActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.logout) {
+            // In case there is another activity expecting a result
+            setResult(RESULT_LOGOUT);
             try {
                 DbHelper dbHelper = new DbHelper(getApplicationContext());
                 RequestQueue queue = Volley.newRequestQueue(this);
@@ -59,11 +61,6 @@ public abstract class LoggedInActivity extends AppCompatActivity {
                     Log.e(TAG, e.getMessage());
                 }
             }
-            //Intent logoutIntent = new Intent(getApplicationContext(), MainActivity.class);
-            //logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //startActivity(logoutIntent);
-            setResult(RESULT_LOGOUT);
-            finish();
             return true;
         }
 

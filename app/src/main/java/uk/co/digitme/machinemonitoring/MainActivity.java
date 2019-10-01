@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                                 mStatusText.setText("Bad server response");
                                 return;
                             }
+                            String colour;
                             String jobNumber;
                             switch (state) {
                                 // Depending on the state, launch the corresponding activity
@@ -138,12 +139,13 @@ public class MainActivity extends AppCompatActivity {
                                 case "active_job":
                                     // There is an active job, running on this device/machine
                                     // Launch the job in progress activity
-                                    String colour;
                                     String currentActivity;
+                                    Boolean setting;
                                     try {
                                         jobNumber = response.getString("wo_number");
                                         colour = response.getString("colour");
                                         currentActivity = response.getString("current_activity");
+
                                     } catch (JSONException je){
                                         // Replace with default values to prevent crash
                                         jobNumber = "";
@@ -153,8 +155,9 @@ public class MainActivity extends AppCompatActivity {
                                     Log.d(TAG, "State: job active, Job:" + jobNumber);
                                     Intent activeJobIntent = new Intent(getApplicationContext(), JobInProgressActivity.class);
                                     // The activity requires possible downtime reasons to populate a dropdown
-                                    ArrayList<String> reasons = parseJsonList(response, "activity_codes");
-                                    activeJobIntent.putExtra("activityCodes", reasons);
+                                    ArrayList<String> codes = new ArrayList<>();
+                                    codes = parseJsonList(response, "activity_codes");
+                                    activeJobIntent.putExtra("activityCodes", codes);
                                     // Send the current activity to set the spinner on
                                     activeJobIntent.putExtra("currentActivity",  currentActivity);
                                     // The activity shows the job number on the action bar
@@ -162,6 +165,23 @@ public class MainActivity extends AppCompatActivity {
                                     // The activity's background changes depending on the activity
                                     activeJobIntent.putExtra("colour", colour);
                                     startActivity(activeJobIntent);
+                                    break;
+                                case "setting":
+                                    try {
+                                        jobNumber = response.getString("wo_number");
+                                        colour = response.getString("colour");
+                                    } catch (JSONException je){
+                                        // Replace with default values to prevent crash
+                                        jobNumber = "";
+                                        colour="#ffffff";
+                                    }
+                                    Log.d(TAG, "State: setting, Job:" + jobNumber);
+                                    Intent settingIntent = new Intent(getApplicationContext(), SettingInProgress.class);
+                                    // The activity shows the job number on the action bar
+                                    settingIntent.putExtra("jobNumber", jobNumber);
+                                    // The activity's background changes depending on the activity
+                                    settingIntent.putExtra("colour", colour);
+                                    startActivity(settingIntent);
                                     break;
 
                                 default:
@@ -196,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
+            e.printStackTrace();
             if (e.getMessage() != null) {
                 // Display any error message to the user and reveal the buttons to retry/change server address
                 Log.e(TAG, e.getMessage());

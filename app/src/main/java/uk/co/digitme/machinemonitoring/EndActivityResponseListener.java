@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 
 /**
- * A simple response listener to use for JSON requests
+ * A simple response listener to use for JSON requests when no data is needed from the server.
  * Checks the response for "success", and ends the activity if true. Shows errors as a toast
  */
 public class EndActivityResponseListener implements Response.Listener<JSONObject> {

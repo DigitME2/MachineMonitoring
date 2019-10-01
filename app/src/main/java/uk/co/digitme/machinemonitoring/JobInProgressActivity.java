@@ -1,5 +1,6 @@
 package uk.co.digitme.machinemonitoring;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,6 +23,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 /**
@@ -28,6 +32,7 @@ import java.util.ArrayList;
 public class JobInProgressActivity extends LoggedInActivity {
 
     final String TAG = "JobInProgressActivity";
+    public static final int JOB_END_DATA_REQUEST_CODE = 9002;
 
     Spinner activityCodeSpinner;
     Button mEndJobButton;
@@ -50,7 +55,7 @@ public class JobInProgressActivity extends LoggedInActivity {
         // Set the action bar to read the job number
         jobNumber = getIntent().getStringExtra("jobNumber");
         Log.v(TAG, "Job number: " + jobNumber);
-        getSupportActionBar().setTitle("Job in progress: " + jobNumber);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Job in progress: " + jobNumber);
 
         activityCodeSpinner = findViewById(R.id.activity_code_spinner);
         mEndJobButton = findViewById(R.id.end_job_button);
@@ -59,21 +64,24 @@ public class JobInProgressActivity extends LoggedInActivity {
             @Override
             public void onSingleClick(View view) {
                 endJob();
-
             }
         });
 
         // Get the list of downtime reasons (Sent by the server) and populate the spinner
         ArrayList<String> codes = getIntent().getStringArrayListExtra("activityCodes");
-        ArrayAdapter<String> activityCodeAdapter = new ArrayAdapter<String>
-                (this, android.R.layout.simple_spinner_item, codes);
-        activityCodeAdapter.setDropDownViewResource(android.R.layout
-                .simple_spinner_dropdown_item);
-        activityCodeSpinner.setAdapter(activityCodeAdapter);
+        ArrayAdapter<String> activityCodeAdapter;
+        if (codes != null) {
+            activityCodeAdapter = new ArrayAdapter<>
+                    (this, android.R.layout.simple_spinner_item, codes);
+            activityCodeAdapter.setDropDownViewResource(android.R.layout
+                    .simple_spinner_dropdown_item);
+            activityCodeSpinner.setAdapter(activityCodeAdapter);
+            //Set the spinner to show the current activity code
+            String current_code = getIntent().getStringExtra("currentActivity");
+            activityCodeSpinner.setSelection(codes.indexOf(current_code));
+        }
 
-        //Set the spinner to show the current activity code
-        String current_code = getIntent().getStringExtra("currentActivity");
-        activityCodeSpinner.setSelection(codes.indexOf(current_code));
+
 
         // As soon as the reason is changed, tell the server
         activityCodeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -97,30 +105,47 @@ public class JobInProgressActivity extends LoggedInActivity {
 
 
     private void endJob(){
-        try {
-            RequestQueue queue = Volley.newRequestQueue(this);
-            String url = "http://" + dbHelper.getServerAddress() + "/androidendjob";
+        Intent endJobInfoIntent = new Intent(getApplicationContext(), EndJobActivity.class);
+        endJobInfoIntent.putExtra("requestCode", JOB_END_DATA_REQUEST_CODE);
+        startActivityForResult(endJobInfoIntent, JOB_END_DATA_REQUEST_CODE);
+    }
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
-                    url,
-                    null,
-                    new EndActivityResponseListener(this),
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.v("ErrorListener", String.valueOf(error));
-                            Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
-                        }
-                    });
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // When the job end information returns, send the info to the server to end the job
+        if (requestCode == JOB_END_DATA_REQUEST_CODE) {
+            try {
+                Bundle bundle = data.getExtras();
+                int actualQuantity = bundle.getInt("quantity", 0);
+                JSONObject jsonPostBody = new JSONObject();
+                jsonPostBody.put("quantity", actualQuantity);
+                jsonPostBody.put("setting", false);
+                RequestQueue queue = Volley.newRequestQueue(this);
+                String url = "http://" + dbHelper.getServerAddress() + "/androidendjob";
 
-            queue.add(jsonObjectRequest);
-        } catch (Exception e) {
-            if (e.getMessage() != null) {
-                Log.e(TAG, e.getMessage());
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
+                        url,
+                        jsonPostBody,
+                        new EndActivityResponseListener(this),
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.v("ErrorListener", String.valueOf(error));
+                                Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                        });
+
+                queue.add(jsonObjectRequest);
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (e.getMessage() != null) {
+                    Log.e(TAG, e.getMessage());
+                }
             }
         }
     }
-
 
     /**
      * Contacts the server to say the status of the machine has changed
@@ -145,7 +170,7 @@ public class JobInProgressActivity extends LoggedInActivity {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Boolean success;
+                            boolean success;
                             try {
                                 // Get the state from the server response
                                 success = response.getBoolean("success");
@@ -157,8 +182,8 @@ public class JobInProgressActivity extends LoggedInActivity {
                                     rootView.setBackgroundColor(Color.parseColor(newColour));
                                 }
                             } catch (Exception e) {
+                                e.printStackTrace();
                                 Log.v(TAG, "Failed parsing server response: " + response);
-                                return;
                             }
                         }
                     },
@@ -173,6 +198,7 @@ public class JobInProgressActivity extends LoggedInActivity {
 
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
+            e.printStackTrace();
             if (e.getMessage() != null) {
                 Log.e(TAG, e.getMessage());
                 finish();

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EndJobActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/job_end_text_1"
+                android:text="@string/job_end_text_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:padding="@dimen/job_info_activity_text_padding"
+                android:textSize="@dimen/job_info_activity_text_size"/>
+
+            <EditText
+                android:id="@+id/job_end_data_entry_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:gravity="end"
+                android:padding="@dimen/job_info_activity_text_padding"
+                android:textSize="@dimen/job_info_activity_edittext_size"
+                android:imeOptions="actionNext"
+                android:nextFocusForward="@+id/data_entry_2"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/save_button"
+            style="?android:textAppearanceSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/action_finish"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <uk.co.digitme.machinemonitoring.CustomNumpadView
+        android:id="@+id/keyboard_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:keyBackground="@color/colorTeal"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:visibility="visible"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        />
+
+</RelativeLayout>

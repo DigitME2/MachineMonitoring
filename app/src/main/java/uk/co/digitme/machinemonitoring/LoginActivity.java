@@ -130,6 +130,7 @@ public class LoginActivity extends AppCompatActivity {
 
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
+            e.printStackTrace();
             if (e.getMessage() != null) {
                 Log.e(TAG, e.getMessage());
             }

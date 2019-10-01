@@ -13,13 +13,50 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/job_info_title_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:padding="@dimen/job_info_activity_text_padding"
+                android:textSize="@dimen/job_info_activity_text_size"
+                android:text="@string/job_info_title_4"/>
+
+            <EditText
+                android:id="@+id/data_entry_4"
+                android:hint="@string/job_info_hint_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+                android:gravity="end"
+                android:padding="@dimen/job_info_activity_text_padding"
+                android:textSize="@dimen/job_info_activity_edittext_size"
+                tools:text="8"
+                />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/start_setting_button"
+            style="?android:textAppearanceSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/action_start_setting"
+            android:textStyle="bold" />
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
-                android:id="@+id/job_info_title_1"
+                android:id="@+id/job_end_title_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -108,6 +145,8 @@
             android:layout_marginTop="16dp"
             android:text="@string/action_start"
             android:textStyle="bold" />
+
+
 
 
 

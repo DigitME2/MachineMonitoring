@@ -3,13 +3,16 @@
 
     <string name="job_save">Save</string>
 
+    <string name="logout_title">Log out</string>
 
-    <string name="job_info_title_1">Planned Quantity</string>
+    <string name="job_info_title_1">Planned Run Time</string>
     <string name="job_info_hint_1"> </string>
-    <string name="job_info_title_2">Planned Cycle Time</string>
+    <string name="job_info_title_2">Planned Quantity</string>
     <string name="job_info_hint_2"> </string>
-    <string name="job_info_title_3">Planned Cycle Quantity</string>
+    <string name="job_info_title_3">Planned Cycle Time</string>
     <string name="job_info_hint_3"> </string>
+    <string name="job_info_title_4">Planned Set Time</string>
+    <string name="job_info_hint_4"> </string>
 
     <string name="start_job_title_1">Name</string>
     <string name="start_job_hint_1"> </string>
@@ -18,30 +21,45 @@
     <string name="start_job_title_3">WO Number</string>
     <string name="start_job_hint_3"> </string>
 
+
     <string name="title_activity_job_info">JobInfoActivity</string>
     <string name="title_activity_job_in_progress">JobInProgress</string>
     <string name="title_activity_login">LoginActivity</string>
+
     <string name="login_password_hint">PIN</string>
     <string name="login_id_title">Operator ID</string>
     <string name="login_password_title">PIN</string>
     <string name="action_sign_in">Sign In</string>
     <string name="login_user_hint">User ID</string>
+
     <string name="action_start">Start Job</string>
+
     <string name="job_number">Job Number</string>
     <string name="job_number_hint">Job Number</string>
     <string name="action_enter">Enter</string>
     <string name="action_pause">Pause</string>
     <string name="action_end">End</string>
+
     <string name="main_activity_status_text">Connecting to server</string>
     <string name="retry_button_text">Retry</string>
-    <string name="action_unpause">Resume Job</string>
-    <string name="save">Save</string>
-    <string name="lock_task_mode">Lock app</string>
-    <string name="ip_textview">Server IP</string>
+
+    <string name="set_address_button_text">Set Server Address</string>
     <string name="server_address_textview">Server Address</string>
     <string name="server_address_hint">e.g. 192.168.0.100</string>
-    <string name="set_address_button_text">Set Server Address</string>
+
+    <string name="action_unpause">Resume Job</string>
     <string name="downtime_reasons_spinner_prompt">Reason for stoppage</string>
-    <string name="logout_title">Log out</string>
+
+    <string name="save">Save</string>
+
+    <string name="lock_task_mode">Lock app</string>
+
+    <string name="ip_textview">Server IP</string>
+
+    <string name="job_end_text_1">Actual Quantity</string>
+    <string name="action_finish">Finish</string>
+    <string name="action_start_setting">Start setting</string>
+    <string name="setting_text">Setting in progress</string>
+
 
 </resources>

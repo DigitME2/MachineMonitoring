@@ -1,10 +1,12 @@
 package uk.co.digitme.machinemonitoring;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -36,7 +38,7 @@ public abstract class LoggedInActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.logout) {
-            // In case there is another activity expecting a result
+            // To close the parent activity
             setResult(RESULT_LOGOUT);
             try {
                 DbHelper dbHelper = new DbHelper(getApplicationContext());
@@ -57,6 +59,7 @@ public abstract class LoggedInActivity extends AppCompatActivity {
 
                 queue.add(jsonObjectRequest);
             } catch (Exception e) {
+                e.printStackTrace();
                 if (e.getMessage() != null) {
                     Log.e(TAG, e.getMessage());
                 }
@@ -65,5 +68,14 @@ public abstract class LoggedInActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // This activity will close if logout is clicked on one of its child activities
+        if (resultCode == RESULT_LOGOUT) {
+            finish();
+        }
     }
 }

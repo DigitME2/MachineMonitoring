@@ -8,4 +8,6 @@
 
     <color name="colorTeal">#009688</color>
 
+    <color name="redErrorText">#bb0000</color>
+
 </resources>

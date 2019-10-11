@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +31,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private final String TAG = "LoginActivity";
 
+    TextView mMachineNameText;
     EditText userIdEditText;
     EditText pinCodeEditText;
     Button mSignInButton;
@@ -42,16 +44,21 @@ public class LoginActivity extends AppCompatActivity {
 
         dbHelper = new DbHelper(getApplicationContext());
         setContentView(R.layout.activity_login);
-        getSupportActionBar().setTitle("Log in");
+        String IP = getIntent().getStringExtra("IP");
+        getSupportActionBar().setTitle(IP + " - Log in");
 
         //Set up the custom keyboard
         CustomNumpadView cnv = findViewById(R.id.keyboard_view);
         cnv.setActionListenerActivity(this);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
+        mMachineNameText = findViewById(R.id.machine_name);
         userIdEditText = findViewById(R.id.login_id);
         pinCodeEditText = findViewById(R.id.login_password);
         mSignInButton = findViewById(R.id.sign_in_button);
+
+        // Set the machine text
+        mMachineNameText.setText(getIntent().getStringExtra("machineText"));
 
         // Focus on the user ID on startup
         userIdEditText.requestFocus();
@@ -106,8 +113,6 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        final long time = System.currentTimeMillis();
-
         // Send the login request to the server. End this activity if successful
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
@@ -135,11 +140,6 @@ public class LoginActivity extends AppCompatActivity {
                 Log.e(TAG, e.getMessage());
             }
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        //do nothing
     }
 }
 

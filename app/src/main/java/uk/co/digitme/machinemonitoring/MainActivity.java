@@ -33,6 +33,7 @@ import java.util.ArrayList;
  * If the activity cannot connect to the server, it shows options to retry and change the server ip
  */
 
+
 public class MainActivity extends AppCompatActivity {
 
     public static final String DEFAULT_URL = "172.23.167.175";
@@ -127,6 +128,21 @@ public class MainActivity extends AppCompatActivity {
                                     // Launch the login screen
                                     Log.d(TAG, "State: no user");
                                     Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                                    String machineText = "Could not get assigned machine";
+                                    String IP = "";
+                                    try{
+                                        if (response.has("ip")){
+                                            IP = response.getString("ip");
+                                        }
+                                        if (response.has("machine")){
+                                            machineText = response.getString("machine");
+                                        }
+
+                                    } catch (JSONException je){
+                                        je.printStackTrace();
+                                    }
+                                    loginIntent.putExtra("machineText", machineText);
+                                    loginIntent.putExtra("IP", IP);
                                     startActivity(loginIntent);
                                     break;
                                 case "no_job":

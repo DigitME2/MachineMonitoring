@@ -117,6 +117,7 @@ public class JobInfoActivity extends LoggedInActivity {
         });
 
         // Prevent the default keyboard from opening
+        mPlannedSetTime.setShowSoftInputOnFocus(false);
         mPlannedRunTimeEditText.setShowSoftInputOnFocus(false);
         mPlannedQuantityEditText.setShowSoftInputOnFocus(false);
         mPlannedCycleTime.setShowSoftInputOnFocus(false);

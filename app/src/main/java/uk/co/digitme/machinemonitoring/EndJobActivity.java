@@ -59,7 +59,7 @@ public class EndJobActivity extends LoggedInActivity {
             mQuantityTextView.setText("Scrap Quantity");
         }
 
-        // Focus on the top box when activity first opens
+        // Focus on the top box when activity first opens.setShowSoftInputOnFocus(false);
         mQuantityEditText.requestFocus();
 
         mQuantityEditText.setOnKeyListener(new View.OnKeyListener() {

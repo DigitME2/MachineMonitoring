@@ -187,6 +187,8 @@ public class JobInProgressActivity extends LoggedInActivity {
                                     String newColour = response.getString("colour");
                                     View rootView = getWindow().getDecorView().getRootView();
                                     rootView.setBackgroundColor(Color.parseColor(newColour));
+                                    // Set the colour of the action bar to match the background
+                                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(newColour)));
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();

@@ -2,6 +2,7 @@ package uk.co.digitme.machinemonitoring;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -59,6 +60,8 @@ public class JobInProgressActivity extends LoggedInActivity {
         jobNumber = getIntent().getStringExtra("jobNumber");
         Log.v(TAG, "Job number: " + jobNumber);
         Objects.requireNonNull(getSupportActionBar()).setTitle("Job in progress: " + jobNumber);
+        // Set the colour of the action bar to match the background
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(colour)));
 
         activityCodeSpinner = findViewById(R.id.activity_code_spinner);
         mEndJobButton = findViewById(R.id.end_job_button);
@@ -70,14 +73,15 @@ public class JobInProgressActivity extends LoggedInActivity {
             }
         });
 
+
         // Get the list of downtime reasons (Sent by the server) and populate the spinner
         ArrayList<String> codes = getIntent().getStringArrayListExtra("activityCodes");
         ArrayAdapter<String> activityCodeAdapter;
+
         if (codes != null) {
             activityCodeAdapter = new ArrayAdapter<>
-                    (this, android.R.layout.simple_spinner_item, codes);
-            activityCodeAdapter.setDropDownViewResource(android.R.layout
-                    .simple_spinner_dropdown_item);
+                    (this, R.layout.spinner_item, codes);
+            activityCodeAdapter.setDropDownViewResource(R.layout.spinner_item);
             activityCodeSpinner.setAdapter(activityCodeAdapter);
             //Set the spinner to show the current activity code
             String current_code = getIntent().getStringExtra("currentActivity");

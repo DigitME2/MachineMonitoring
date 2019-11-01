@@ -24,7 +24,9 @@ tools:context=".JobInProgressActivity">
         android:layout_width="match_parent"
         android:layout_height="@dimen/job_action_button_height"
         android:text="@string/action_end"
-        android:textStyle="bold" />
+        android:textSize="@dimen/job_action_button_text_size"
+        android:fontFamily="@string/button_font_family"
+        android:layout_margin="@dimen/job_action_button_margin" />
 </LinearLayout>
 
 </FrameLayout>

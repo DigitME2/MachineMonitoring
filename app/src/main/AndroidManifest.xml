@@ -12,7 +12,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".SettingInProgress"></activity>
+        <activity android:name=".SettingInProgress"/>
         <activity android:name=".EndJobActivity" />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".JobNumberActivity" />

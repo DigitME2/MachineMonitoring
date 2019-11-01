@@ -22,9 +22,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintLeft_toLeftOf="parent"
-                android:padding="@dimen/job_info_activity_text_padding"
-                android:textSize="@dimen/job_info_activity_text_size"
-                android:text="@string/job_info_title_4"/>
+                android:padding="@dimen/form_entry_text_padding"
+                android:textSize="@dimen/form_entry_inline_text_size"
+                android:text="@string/job_info_title_4"
+                android:fontFamily="@string/form_font_family"/>
 
             <EditText
                 android:id="@+id/data_entry_4"
@@ -35,20 +36,23 @@
                 android:selectAllOnFocus="true"
                 android:inputType="number"
                 android:gravity="end"
-                android:padding="@dimen/job_info_activity_text_padding"
-                android:textSize="@dimen/job_info_activity_edittext_size"
+                android:padding="@dimen/form_entry_text_padding"
+                android:textSize="@dimen/form_entry_inline_text_size"
+                android:fontFamily="@string/form_font_family"
                 tools:text="8"
                 />
         </LinearLayout>
 
         <Button
             android:id="@+id/start_setting_button"
-            style="?android:textAppearanceSmall"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/form_entry_button_height"
             android:layout_marginTop="16dp"
             android:text="@string/action_start_setting"
-            android:textStyle="bold" />
+            android:textSize="@dimen/form_entry_button_text_size"
+            android:fontFamily="@string/button_font_family"
+            android:layout_marginBottom="25dp"
+            />
 
 
         <LinearLayout
@@ -60,9 +64,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintLeft_toLeftOf="parent"
-                android:padding="@dimen/job_info_activity_text_padding"
-                android:textSize="@dimen/job_info_activity_text_size"
-                android:text="@string/job_info_title_1"/>
+                android:padding="@dimen/form_entry_text_padding"
+                android:textSize="@dimen/form_entry_inline_text_size"
+                android:text="@string/job_info_title_1"
+                android:fontFamily="@string/form_font_family"/>
 
             <EditText
                 android:id="@+id/data_entry_1"
@@ -73,8 +78,9 @@
                 android:selectAllOnFocus="true"
                 android:inputType="number"
                 android:gravity="end"
-                android:padding="@dimen/job_info_activity_text_padding"
-                android:textSize="@dimen/job_info_activity_edittext_size"
+                android:padding="@dimen/form_entry_text_padding"
+                android:textSize="@dimen/form_entry_inline_text_size"
+                android:fontFamily="@string/form_font_family"
                 tools:text="72"
                 android:imeOptions="actionNext"
                 android:nextFocusForward="@+id/data_entry_2"/>
@@ -89,9 +95,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintLeft_toLeftOf="parent"
-                android:padding="@dimen/job_info_activity_text_padding"
-                android:textSize="@dimen/job_info_activity_text_size"
-                android:text="@string/job_info_title_2"/>
+                android:padding="@dimen/form_entry_text_padding"
+                android:textSize="@dimen/form_entry_inline_text_size"
+                android:text="@string/job_info_title_2"
+                android:fontFamily="@string/form_font_family"/>
 
             <EditText
                 android:id="@+id/data_entry_2"
@@ -102,9 +109,10 @@
                 android:selectAllOnFocus="true"
                 android:inputType="number"
                 android:gravity="end"
-                android:padding="@dimen/job_info_activity_text_padding"
-                android:textSize="@dimen/job_info_activity_edittext_size"
+                android:padding="@dimen/form_entry_text_padding"
+                android:textSize="@dimen/form_entry_inline_text_size"
                 android:nextFocusForward="@+id/data_entry_3"
+                android:fontFamily="@string/form_font_family"
                 tools:text="72"
                 />
         </LinearLayout>
@@ -118,9 +126,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintLeft_toLeftOf="parent"
-                android:padding="@dimen/job_info_activity_text_padding"
-                android:textSize="@dimen/job_info_activity_text_size"
-                android:text="@string/job_info_title_3"/>
+                android:padding="@dimen/form_entry_text_padding"
+                android:textSize="@dimen/form_entry_inline_text_size"
+                android:text="@string/job_info_title_3"
+                android:fontFamily="@string/form_font_family"/>
 
             <EditText
                 android:id="@+id/data_entry_3"
@@ -131,20 +140,21 @@
                 android:selectAllOnFocus="true"
                 android:inputType="number"
                 android:gravity="end"
-                android:padding="@dimen/job_info_activity_text_padding"
-                android:textSize="@dimen/job_info_activity_edittext_size"
+                android:padding="@dimen/form_entry_text_padding"
+                android:textSize="@dimen/form_entry_inline_text_size"
+                android:fontFamily="@string/form_font_family"
                 tools:text="8"
                 />
         </LinearLayout>
 
         <Button
             android:id="@+id/start_button"
-            style="?android:textAppearanceSmall"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/form_entry_button_height"
             android:layout_marginTop="16dp"
             android:text="@string/action_start"
-            android:textStyle="bold" />
+            android:textSize="@dimen/form_entry_button_text_size"
+            android:fontFamily="@string/button_font_family"/>
 
 
 

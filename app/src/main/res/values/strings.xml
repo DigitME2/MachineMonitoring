@@ -60,6 +60,8 @@
     <string name="action_finish">Finish</string>
     <string name="action_start_setting">Start setting</string>
     <string name="setting_text">Setting in progress</string>
+    <string name="form_font_family">sans-serif-black</string>
+    <string name="button_font_family">sans-serif-black</string>
 
 
 </resources>

@@ -9,9 +9,10 @@
 
     <Switch
         android:id="@+id/lock_task_switch"
-        android:padding="@dimen/settings_activity_text_padding"
+        android:padding="@dimen/form_entry_text_padding"
         android:text="@string/lock_task_mode"
-        android:textSize="@dimen/job_info_activity_text_size"
+        android:textSize="@dimen/form_entry_inline_text_size"
+        android:fontFamily="@string/form_font_family"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -24,9 +25,10 @@
             android:id="@+id/server_address_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/job_info_activity_text_padding"
+            android:padding="@dimen/form_entry_text_padding"
             android:text="@string/server_address_textview"
-            android:textSize="@dimen/job_info_activity_text_size"
+            android:textSize="@dimen/form_entry_inline_text_size"
+            android:fontFamily="@string/form_font_family"
             app:layout_constraintLeft_toLeftOf="parent" />
 
         <EditText
@@ -39,10 +41,11 @@
             android:inputType="number|numberDecimal"
             android:digits="0123456789."
             android:nextFocusDown="@+id/data_entry_2"
-            android:padding="@dimen/job_info_activity_text_padding"
+            android:padding="@dimen/form_entry_text_padding"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:textSize="@dimen/job_info_activity_edittext_size" />
+            android:textSize="@dimen/form_entry_inline_text_size"
+            android:fontFamily="@string/form_font_family" />
 
     </LinearLayout>
 
@@ -54,4 +57,3 @@
         android:text="@string/save"/>
 
 </LinearLayout>
-

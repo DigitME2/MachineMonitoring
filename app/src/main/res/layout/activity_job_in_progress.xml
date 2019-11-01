@@ -15,14 +15,14 @@ tools:context=".JobInProgressActivity">
         android:id="@+id/activity_code_spinner"
         android:prompt="@string/downtime_reasons_spinner_prompt"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/in_progress_button_height"
+        android:layout_height="@dimen/job_action_button_height"
         android:background="#ffffff"
         android:textStyle="bold" />
 
     <Button
         android:id="@+id/end_job_button"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/in_progress_button_height"
+        android:layout_height="@dimen/job_action_button_height"
         android:text="@string/action_end"
         android:textStyle="bold" />
 </LinearLayout>

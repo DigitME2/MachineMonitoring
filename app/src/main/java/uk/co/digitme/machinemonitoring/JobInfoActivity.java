@@ -48,6 +48,8 @@ public class JobInfoActivity extends LoggedInActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         dbHelper = new DbHelper(getApplicationContext());
         Intent jobNumberIntent = new Intent(getApplicationContext(), JobNumberActivity.class);
 

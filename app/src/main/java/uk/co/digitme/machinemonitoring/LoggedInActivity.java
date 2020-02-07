@@ -54,6 +54,7 @@ public abstract class LoggedInActivity extends AppCompatActivity {
                             public void onErrorResponse(VolleyError error) {
                                 Log.v("ErrorListener", String.valueOf(error));
                                 Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
+                                finish();
                             }
                         });
 

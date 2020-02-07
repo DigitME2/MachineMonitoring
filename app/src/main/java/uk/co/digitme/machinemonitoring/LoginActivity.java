@@ -132,6 +132,7 @@ public class LoginActivity extends AppCompatActivity {
                         public void onErrorResponse(VolleyError error) {
                             Log.v("ErrorListener", String.valueOf(error));
                             Toast.makeText(context, String.valueOf(error), Toast.LENGTH_LONG).show();
+                            finish();
                         }
                     });
 

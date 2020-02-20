@@ -21,7 +21,7 @@ public class EndActivityResponseListener implements Response.Listener<JSONObject
     /**
      * @param activity The activity to close when a successful response is received
      */
-    EndActivityResponseListener(Activity activity){
+    public EndActivityResponseListener(Activity activity){
         this.mActivity = activity;
     }
 

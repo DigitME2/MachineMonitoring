@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Default;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -26,6 +26,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Objects;
+
+import uk.co.digitme.machinemonitoring.DbHelper;
+import uk.co.digitme.machinemonitoring.EndActivityResponseListener;
+import uk.co.digitme.machinemonitoring.LoggedInActivity;
+import uk.co.digitme.machinemonitoring.OnOneOffClickListener;
+import uk.co.digitme.machinemonitoring.R;
 
 
 /**

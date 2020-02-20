@@ -1,8 +1,9 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Pneumatrol;
 
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,7 +24,13 @@ import org.json.JSONObject;
 
 import java.util.Objects;
 
-public class SettingInProgress extends LoggedInActivity {
+import uk.co.digitme.machinemonitoring.DbHelper;
+import uk.co.digitme.machinemonitoring.EndActivityResponseListener;
+import uk.co.digitme.machinemonitoring.LoggedInActivity;
+import uk.co.digitme.machinemonitoring.OnOneOffClickListener;
+import uk.co.digitme.machinemonitoring.R;
+
+public class SettingInProgressActivity extends LoggedInActivity {
 
     public static final int SETTING_END_DATA_REQUEST_CODE = 9003;
     String jobNumber;
@@ -35,9 +42,12 @@ public class SettingInProgress extends LoggedInActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Set to fullscreen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_setting_in_progress);
+        // Stop the screen timeout
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setContentView(R.layout.pneumatrol_activity_setting_in_progress);
 
         dbHelper = new DbHelper(getApplicationContext());
 
@@ -50,6 +60,8 @@ public class SettingInProgress extends LoggedInActivity {
         jobNumber = getIntent().getStringExtra("jobNumber");
         Log.v(TAG, "Job number: " + jobNumber);
         Objects.requireNonNull(getSupportActionBar()).setTitle("Job in progress: " + jobNumber);
+        // Set the colour of the action bar to match the background
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(colour)));
 
         mEndButton = findViewById(R.id.end_job_button);
 
@@ -76,7 +88,7 @@ public class SettingInProgress extends LoggedInActivity {
                 Bundle bundle = data.getExtras();
                 int scrap = bundle.getInt("quantity", 0);
                 RequestQueue queue = Volley.newRequestQueue(this);
-                String url = "http://" + dbHelper.getServerAddress() + "/androidendjob";
+                String url = "http://" + dbHelper.getServerAddress() + "/pneumatrolendjob";
                 JSONObject jsonPostBody = new JSONObject();
                 jsonPostBody.put("quantity", scrap);
                 jsonPostBody.put("setting", true);

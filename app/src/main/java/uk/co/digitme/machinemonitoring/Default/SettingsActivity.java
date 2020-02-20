@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Default;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,6 +11,9 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
+
+import uk.co.digitme.machinemonitoring.DbHelper;
+import uk.co.digitme.machinemonitoring.R;
 
 
 /**

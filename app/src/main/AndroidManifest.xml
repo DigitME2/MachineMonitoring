@@ -12,16 +12,15 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".SettingInProgress"/>
-        <activity android:name=".EndJobActivity" />
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".JobNumberActivity" />
-        <activity android:name=".JobInProgressActivity" />
+        <activity android:name=".Default.EndJobActivity" />
+        <activity android:name=".Default.SettingsActivity" />
+        <activity android:name=".Default.JobNumberActivity" />
+        <activity android:name=".Default.JobInProgressActivity" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".Default.LoginActivity"
             android:label="@string/title_activity_login" />
         <activity
-            android:name=".JobInfoActivity"
+            android:name=".Default.JobInfoActivity"
             android:label="@string/title_activity_job_info" />
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -30,6 +29,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Pneumatrol.JobPausedActivity" />
+        <activity android:name=".Pneumatrol.SettingInProgressActivity" />
+        <activity android:name=".Pneumatrol.SettingsActivity" />
+        <activity android:name=".Pneumatrol.JobInfoActivity" />
+        <activity android:name=".Pneumatrol.EndJobActivity" />
+        <activity android:name=".Pneumatrol.JobNumberActivity" />
+        <activity android:name=".Pneumatrol.JobInProgressActivity" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

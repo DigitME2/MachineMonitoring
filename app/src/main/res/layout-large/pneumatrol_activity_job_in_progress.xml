@@ -3,7 +3,7 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-tools:context=".Default.JobInProgressActivity">
+tools:context=".Pneumatrol.JobInProgressActivity">
 
 <LinearLayout
     android:layout_width="match_parent"
@@ -11,13 +11,14 @@ tools:context=".Default.JobInProgressActivity">
     android:gravity="center"
     android:orientation="vertical">
 
-    <Spinner
-        android:id="@+id/activity_code_spinner"
-        android:prompt="@string/downtime_reasons_spinner_prompt"
+    <Button
+        android:id="@+id/pause_job_button"
         android:layout_width="match_parent"
         android:layout_height="@dimen/job_action_button_height"
-        android:background="#ffffff"
-        android:textStyle="bold" />
+        android:text="@string/action_pause"
+        android:textSize="@dimen/job_action_button_text_size"
+        android:fontFamily="@string/button_font_family"
+        android:layout_margin="@dimen/job_action_button_margin"/>
 
     <Button
         android:id="@+id/end_job_button"
@@ -26,7 +27,7 @@ tools:context=".Default.JobInProgressActivity">
         android:text="@string/action_end"
         android:textSize="@dimen/job_action_button_text_size"
         android:fontFamily="@string/button_font_family"
-        android:layout_margin="@dimen/job_action_button_margin" />
+        android:layout_margin="@dimen/job_action_button_margin"/>
 </LinearLayout>
 
 </FrameLayout>

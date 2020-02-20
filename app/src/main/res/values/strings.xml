@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MachineMonitoring</string>
+    <string name="app_name">Machine Monitor</string>
 
     <string name="job_save">Save</string>
 
@@ -30,15 +30,15 @@
     <string name="login_id_title">Operator ID</string>
     <string name="login_password_title">PIN</string>
     <string name="action_sign_in">Sign In</string>
-    <string name="login_user_hint">User ID</string>
+    <string name="login_user_hint">ID</string>
 
     <string name="action_start">Start Job</string>
 
-    <string name="job_number">WO Number</string>
-    <string name="job_number_hint">WO Number</string>
+    <string name="job_number">WO</string>
+    <string name="job_number_hint">Work Order</string>
     <string name="action_enter">Enter</string>
     <string name="action_pause">Pause</string>
-    <string name="action_end">End</string>
+    <string name="action_end">End Job</string>
 
     <string name="main_activity_status_text">Connecting to server</string>
     <string name="retry_button_text">Retry</string>
@@ -60,8 +60,10 @@
     <string name="action_finish">Finish</string>
     <string name="action_start_setting">Start setting</string>
     <string name="setting_text">Setting in progress</string>
-    <string name="form_font_family">sans-serif-black</string>
+    <string name="notes_hint">Notes</string>
     <string name="button_font_family">sans-serif-black</string>
+    <string name="form_font_family">sans-serif-black</string>
 
 
 </resources>
+

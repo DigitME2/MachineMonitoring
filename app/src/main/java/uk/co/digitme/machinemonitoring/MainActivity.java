@@ -27,6 +27,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import uk.co.digitme.machinemonitoring.Default.JobInProgressActivity;
+import uk.co.digitme.machinemonitoring.Default.JobInfoActivity;
+import uk.co.digitme.machinemonitoring.Default.LoginActivity;
+import uk.co.digitme.machinemonitoring.Default.SettingsActivity;
+import uk.co.digitme.machinemonitoring.Pneumatrol.JobPausedActivity;
+import uk.co.digitme.machinemonitoring.Pneumatrol.SettingInProgressActivity;
+
 /**
  * The app goes to this screen every time it is opens. This activity contacts the server to find out
  * what state this app should be in (eg no user, job active). This activity then starts the activity
@@ -112,106 +119,61 @@ public class MainActivity extends AppCompatActivity {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
+                            String workflowType;
                             String state;
                             try {
-                                // Get the state from the server response
+                                // Get the workflow type from the server response
+                                workflowType = response.getString("workflow_type");
                                 state = response.getString("state");
                                 Log.d(TAG, "Response: " + response.toString());
                             } catch (Exception e) {
                                 Log.v(TAG, "Failed parsing server response: " + response);
-                                mStatusText.setText("Bad server response");
+                                mStatusText.setText("Bad server response: " + response);
+                                mStatusText.setVisibility(View.VISIBLE);
+                                mRetryButton.setVisibility(View.VISIBLE);
+                                mSetAddressButton.setVisibility(View.VISIBLE);
                                 return;
                             }
-                            String colour;
-                            String jobNumber;
-                            switch (state) {
-                                // Depending on the state, launch the corresponding activity
-                                case "no_user":
-                                    // There is no user logged in on this device.
-                                    // Launch the login screen
-                                    Log.d(TAG, "State: no user");
-                                    Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                                    String machineText = "Could not get assigned machine";
-                                    String IP = "";
-                                    try{
-                                        if (response.has("ip")){
-                                            IP = response.getString("ip");
-                                        }
-                                        if (response.has("machine")){
-                                            machineText = response.getString("machine");
-                                        }
-
-                                    } catch (JSONException je){
-                                        je.printStackTrace();
+                            // If the server shows no user logged in, start the login screen
+                            // This occurs regardless of the machine's workflow
+                            if (state.equals("no_user")){
+                                // Launch the login screen
+                                Log.d(TAG, "State: no user");
+                                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                                String machineText = "Could not get assigned machine";
+                                String IP = "";
+                                try{
+                                    if (response.has("ip")){
+                                        IP = response.getString("ip");
                                     }
-                                    loginIntent.putExtra("machineText", machineText);
-                                    loginIntent.putExtra("IP", IP);
-                                    startActivity(loginIntent);
-                                    break;
-                                case "no_job":
-                                    // There is no active job on this device/machine
-                                    // Launch the "start new job" activity
-                                    Log.d(TAG, "State: no job");
-                                    Intent jobInfoIntent = new Intent(getApplicationContext(), JobInfoActivity.class);
-                                    startActivity(jobInfoIntent);
-                                    break;
-                                case "active_job":
-                                    // There is an active job, running on this device/machine
-                                    // Launch the job in progress activity
-                                    String currentActivity;
-                                    Boolean setting;
-                                    try {
-                                        jobNumber = response.getString("wo_number");
-                                        colour = response.getString("colour");
-                                        currentActivity = response.getString("current_activity");
-
-                                    } catch (JSONException je){
-                                        // Replace with default values to prevent crash
-                                        jobNumber = "";
-                                        colour="#ffffff";
-                                        currentActivity = "uptime";
+                                    if (response.has("machine")){
+                                        machineText = response.getString("machine");
                                     }
-                                    Log.d(TAG, "State: job active, Job:" + jobNumber);
-                                    Intent activeJobIntent = new Intent(getApplicationContext(), JobInProgressActivity.class);
-                                    // The activity requires possible downtime reasons to populate a dropdown
-                                    ArrayList<String> codes = new ArrayList<>();
-                                    codes = parseJsonList(response, "activity_codes");
-                                    activeJobIntent.putExtra("activityCodes", codes);
-                                    // Send the current activity to set the spinner on
-                                    activeJobIntent.putExtra("currentActivity",  currentActivity);
-                                    // The activity shows the job number on the action bar
-                                    activeJobIntent.putExtra("jobNumber", jobNumber);
-                                    // The activity's background changes depending on the activity
-                                    activeJobIntent.putExtra("colour", colour);
-                                    startActivity(activeJobIntent);
-                                    break;
-                                case "setting":
-                                    try {
-                                        jobNumber = response.getString("wo_number");
-                                        colour = response.getString("colour");
-                                    } catch (JSONException je){
-                                        // Replace with default values to prevent crash
-                                        jobNumber = "";
-                                        colour="#ffffff";
-                                    }
-                                    Log.d(TAG, "State: setting, Job:" + jobNumber);
-                                    Intent settingIntent = new Intent(getApplicationContext(), SettingInProgress.class);
-                                    // The activity shows the job number on the action bar
-                                    settingIntent.putExtra("jobNumber", jobNumber);
-                                    // The activity's background changes depending on the activity
-                                    settingIntent.putExtra("colour", colour);
-                                    startActivity(settingIntent);
-                                    break;
 
-                                default:
-                                    // If the state is not understood, tell the user and show the
-                                    // buttons to retry/change server address
-                                    Log.e(TAG, "State could not be parsed: " + state);
-                                    mStatusText.setText("Bad server response");
+                                } catch (JSONException je){
+                                    je.printStackTrace();
                                     mStatusText.setVisibility(View.VISIBLE);
                                     mRetryButton.setVisibility(View.VISIBLE);
                                     mSetAddressButton.setVisibility(View.VISIBLE);
-                                    break;
+                                }
+                                loginIntent.putExtra("machineText", machineText);
+                                loginIntent.putExtra("IP", IP);
+                                startActivity(loginIntent);
+                            }
+                            else {
+                                // Direct the user differently depending on the workflow type
+                                switch (workflowType) {
+                                    case "default":
+                                        defaultWorkFlow(response);
+                                        break;
+
+                                    case "pneumatrol":
+                                        pneumatrolWorkflow(response);
+                                        break;
+
+                                    case "":
+
+                                }
                             }
                         }
                     }, new Response.ErrorListener() {
@@ -239,13 +201,223 @@ public class MainActivity extends AppCompatActivity {
             if (e.getMessage() != null) {
                 // Display any error message to the user and reveal the buttons to retry/change server address
                 Log.e(TAG, e.getMessage());
-                mStatusText.setText("e.getMessage()");
+                mStatusText.setText(e.getMessage());
                 mStatusText.setVisibility(View.VISIBLE);
                 mRetryButton.setVisibility(View.VISIBLE);
                 mSetAddressButton.setVisibility(View.VISIBLE);
             }
         }
 
+    }
+
+    private void defaultWorkFlow(JSONObject response){
+        String colour;
+        String jobNumber;
+        String state;
+        try {
+            // Get the state from the server response
+            state = response.getString("state");
+            Log.d(TAG, "Response: " + response.toString());
+        } catch (Exception e) {
+            Log.v(TAG, "Failed parsing server response: " + response);
+            mStatusText.setText("Bad server response");
+            return;
+        }
+        switch (state) {
+            // Depending on the state, launch the corresponding activity
+            case "no_user":
+                // There is no user logged in on this device.
+                // Launch the login screen
+                Log.d(TAG, "State: no user");
+                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                String machineText = "Could not get assigned machine";
+                String IP = "";
+                try{
+                    if (response.has("ip")){
+                        IP = response.getString("ip");
+                    }
+                    if (response.has("machine")){
+                        machineText = response.getString("machine");
+                    }
+
+                } catch (JSONException je){
+                    je.printStackTrace();
+                }
+                loginIntent.putExtra("machineText", machineText);
+                loginIntent.putExtra("IP", IP);
+                startActivity(loginIntent);
+                break;
+            case "no_job":
+                // There is no active job on this device/machine
+                // Launch the "start new job" activity
+                Log.d(TAG, "State: no job");
+                Intent jobInfoIntent = new Intent(getApplicationContext(), JobInfoActivity.class);
+                startActivity(jobInfoIntent);
+                break;
+            case "active_job":
+                // There is an active job, running on this device/machine
+                // Launch the job in progress activity
+                String currentActivity;
+                Boolean setting;
+                try {
+                    jobNumber = response.getString("wo_number");
+                    colour = response.getString("colour");
+                    currentActivity = response.getString("current_activity");
+
+                } catch (JSONException je){
+                    // Replace with default values to prevent crash
+                    jobNumber = "";
+                    colour="#ffffff";
+                    currentActivity = "uptime";
+                }
+                Log.d(TAG, "State: job active, Job:" + jobNumber);
+                Intent activeJobIntent = new Intent(getApplicationContext(), JobInProgressActivity.class);
+                // The activity requires possible downtime reasons to populate a dropdown
+                ArrayList<String> codes = new ArrayList<>();
+                codes = parseJsonList(response, "activity_codes");
+                activeJobIntent.putExtra("activityCodes", codes);
+                // Send the current activity to set the spinner on
+                activeJobIntent.putExtra("currentActivity",  currentActivity);
+                // The activity shows the job number on the action bar
+                activeJobIntent.putExtra("jobNumber", jobNumber);
+                // The activity's background changes depending on the activity
+                activeJobIntent.putExtra("colour", colour);
+                startActivity(activeJobIntent);
+                break;
+
+
+            default:
+                // If the state is not understood, tell the user and show the
+                // buttons to retry/change server address
+                Log.e(TAG, "State could not be parsed: " + state);
+                mStatusText.setText("Bad server response");
+                mStatusText.setVisibility(View.VISIBLE);
+                mRetryButton.setVisibility(View.VISIBLE);
+                mSetAddressButton.setVisibility(View.VISIBLE);
+                break;
+        }
+    }
+
+    private void pneumatrolWorkflow(JSONObject response){
+        String state;
+        try {
+            // Get the state from the server response
+            state = response.getString("state");
+            Log.d(TAG, "Response: " + response.toString());
+        } catch (Exception e) {
+            Log.v(TAG, "Failed parsing server response: " + response);
+            mStatusText.setText("Bad server response");
+            return;
+        }
+        String colour;
+        String jobNumber;
+        switch (state) {
+            // Depending on the state, launch the corresponding activity
+            case "no_user":
+                // There is no user logged in on this device.
+                // Launch the login screen
+                Log.d(TAG, "State: no user");
+                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                String machineText = "Could not get assigned machine";
+                String IP = "";
+                try{
+                    if (response.has("ip")){
+                        IP = response.getString("ip");
+                    }
+                    if (response.has("machine")){
+                        machineText = response.getString("machine");
+                    }
+
+                } catch (JSONException je){
+                    je.printStackTrace();
+                }
+                loginIntent.putExtra("machineText", machineText);
+                loginIntent.putExtra("IP", IP);
+                startActivity(loginIntent);
+                break;
+            case "no_job":
+                // There is no active job on this device/machine
+                // Launch the "start new job" activity
+                Log.d(TAG, "State: no job");
+                Intent jobInfoIntent = new Intent(getApplicationContext(), uk.co.digitme.machinemonitoring.Pneumatrol.JobInfoActivity.class);
+                startActivity(jobInfoIntent);
+                break;
+            case "active_job":
+                // There is an active job, running on this device/machine
+                // Launch the job in progress activity
+                String currentActivity;
+                try {
+                    jobNumber = response.getString("wo_number");
+                    colour = response.getString("colour");
+                    currentActivity = response.getString("current_activity");
+                } catch (JSONException je){
+                    // Replace with default values to prevent crash
+                    jobNumber = "";
+                    colour="#ffffff";
+                    currentActivity = "uptime";
+                }
+                Log.d(TAG, "State: job active, Job:" + jobNumber);
+                Intent activeJobIntent = new Intent(getApplicationContext(), uk.co.digitme.machinemonitoring.Pneumatrol.JobInProgressActivity.class);
+                // The activity shows the job number on the action bar);
+                activeJobIntent.putExtra("jobNumber", jobNumber);
+                // Send the current activity to show in the action bar
+                activeJobIntent.putExtra("currentActivity",  currentActivity);
+                // The activity's background changes depending on the activity
+                activeJobIntent.putExtra("colour", colour);
+                startActivity(activeJobIntent);
+                break;
+
+            case "paused":
+                try {
+                    jobNumber = response.getString("wo_number");
+                    colour = response.getString("colour");
+                } catch (JSONException je){
+                    // Replace with default values to prevent crash
+                    jobNumber = "";
+                    colour="#ffffff";
+                    currentActivity = "";
+                }
+                Log.d(TAG, "State: setting, Job:" + jobNumber);
+                Intent pausedIntent = new Intent(getApplicationContext(), JobPausedActivity.class);
+                // The activity shows the job number on the action bar
+                pausedIntent.putExtra("jobNumber", jobNumber);
+                // The activity's background changes depending on the activity
+                pausedIntent.putExtra("colour", colour);
+                // The activity requires possible downtime reasons to populate a dropdown
+                ArrayList<String> codes = new ArrayList<>();
+                codes = parseJsonList(response, "activity_codes");
+                pausedIntent.putExtra("activityCodes", codes);
+                startActivity(pausedIntent);
+                break;
+
+            case "setting":
+                try {
+                    jobNumber = response.getString("wo_number");
+                    colour = response.getString("colour");
+                } catch (JSONException je){
+                    // Replace with default values to prevent crash
+                    jobNumber = "";
+                    colour="#ffffff";
+                }
+                Log.d(TAG, "State: setting, Job:" + jobNumber);
+                Intent settingIntent = new Intent(getApplicationContext(), SettingInProgressActivity.class);
+                // The activity shows the job number on the action bar
+                settingIntent.putExtra("jobNumber", jobNumber);
+                // The activity's background changes depending on the activity
+                settingIntent.putExtra("colour", colour);
+                startActivity(settingIntent);
+                break;
+
+            default:
+                // If the state is not understood, tell the user and show the
+                // buttons to retry/change server address
+                Log.e(TAG, "State could not be parsed: " + state);
+                mStatusText.setText("Bad server response");
+                mStatusText.setVisibility(View.VISIBLE);
+                mRetryButton.setVisibility(View.VISIBLE);
+                mSetAddressButton.setVisibility(View.VISIBLE);
+                break;
+        }
     }
 
     /**

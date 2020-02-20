@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="uk.co.digitme.machinemonitoring.Default.JobInfoActivity"
+    tools:context="uk.co.digitme.machinemonitoring.uk.co.digitme.pneumatrol.Pneumatrol.JobInfoActivity"
     android:fitsSystemWindows="true">
 
 
@@ -50,7 +50,7 @@
             android:layout_marginTop="16dp"
             android:text="@string/action_start_setting"
             android:textSize="@dimen/form_entry_button_text_size"
-            android:fontFamily="@string/button_font_family"
+            android:fontFamily="@string/form_font_family"
             android:layout_marginBottom="25dp"
             />
 

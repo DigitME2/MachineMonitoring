@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Default;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +8,9 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+
+import uk.co.digitme.machinemonitoring.LoggedInActivity;
+import uk.co.digitme.machinemonitoring.R;
 
 
 /**

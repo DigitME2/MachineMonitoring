@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Default;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,8 +10,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import static uk.co.digitme.machinemonitoring.JobInProgressActivity.JOB_END_DATA_REQUEST_CODE;
-import static uk.co.digitme.machinemonitoring.SettingInProgress.SETTING_END_DATA_REQUEST_CODE;
+import uk.co.digitme.machinemonitoring.CustomNumpadView;
+import uk.co.digitme.machinemonitoring.DbHelper;
+import uk.co.digitme.machinemonitoring.LoggedInActivity;
+import uk.co.digitme.machinemonitoring.OnOneOffClickListener;
+import uk.co.digitme.machinemonitoring.R;
+
+import static uk.co.digitme.machinemonitoring.Default.JobInProgressActivity.JOB_END_DATA_REQUEST_CODE;
 
 
 /**
@@ -56,9 +61,7 @@ public class EndJobActivity extends LoggedInActivity {
         if(requestCode==JOB_END_DATA_REQUEST_CODE){
             mQuantityTextView.setText("Actual Quantity");
         }
-        else if(requestCode == SETTING_END_DATA_REQUEST_CODE){
-            mQuantityTextView.setText("Scrap Quantity");
-        }
+
 
         // Focus on the top box when activity first opens.setShowSoftInputOnFocus(false);
         mQuantityEditText.requestFocus();

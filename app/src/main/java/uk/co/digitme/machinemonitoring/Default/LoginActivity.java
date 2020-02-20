@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Default;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -22,6 +22,12 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
+
+import uk.co.digitme.machinemonitoring.CustomNumpadView;
+import uk.co.digitme.machinemonitoring.DbHelper;
+import uk.co.digitme.machinemonitoring.EndActivityResponseListener;
+import uk.co.digitme.machinemonitoring.OnOneOffClickListener;
+import uk.co.digitme.machinemonitoring.R;
 
 /**
  * The login screen to show when a user is not logged in.

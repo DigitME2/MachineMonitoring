@@ -23,7 +23,7 @@ import com.android.volley.toolbox.Volley;
 
 public abstract class LoggedInActivity extends AppCompatActivity {
 
-    final String TAG = "BaseActivity";
+    public final String TAG = "BaseActivity";
     final public int RESULT_LOGOUT = 2;
 
     @Override

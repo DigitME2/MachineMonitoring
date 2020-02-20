@@ -40,4 +40,11 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <!--    For the downtime spinner-->
+    <style name="activityCodeSpinner" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:textSize">100sp</item>
+        <item name="android:color">#000</item>
+    </style>
+
 </resources>

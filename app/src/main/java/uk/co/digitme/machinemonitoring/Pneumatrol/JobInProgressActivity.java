@@ -7,10 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -24,13 +21,13 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
-import uk.co.digitme.machinemonitoring.DbHelper;
-import uk.co.digitme.machinemonitoring.EndActivityResponseListener;
-import uk.co.digitme.machinemonitoring.LoggedInActivity;
-import uk.co.digitme.machinemonitoring.OnOneOffClickListener;
+import uk.co.digitme.machinemonitoring.DataEntryActivity;
+import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
+import uk.co.digitme.machinemonitoring.Helpers.EndActivityResponseListener;
+import uk.co.digitme.machinemonitoring.Helpers.LoggedInActivity;
+import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
 import uk.co.digitme.machinemonitoring.R;
 
 
@@ -127,8 +124,15 @@ public class JobInProgressActivity extends LoggedInActivity {
 
 
     private void endJob() {
-        Intent endJobInfoIntent = new Intent(getApplicationContext(), EndJobActivity.class);
+        Intent endJobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
         endJobInfoIntent.putExtra("requestCode", JOB_END_DATA_REQUEST_CODE);
+        endJobInfoIntent.putExtra("url", "/pneumatrolendjob");
+        endJobInfoIntent.putExtra("numericalInput", true);
+        // Pass the requested data from the initial intent
+        endJobInfoIntent.putExtra("requestedData", getIntent().getStringExtra("requestedDataOnEnd"));
+        // The text shown on the send button
+        endJobInfoIntent.putExtra("sendButtonText", "End");
+
         startActivityForResult(endJobInfoIntent, JOB_END_DATA_REQUEST_CODE);
     }
 
@@ -137,34 +141,8 @@ public class JobInProgressActivity extends LoggedInActivity {
         super.onActivityResult(requestCode, resultCode, data);
         // When the job end information returns, send the info to the server to end the job
         if (requestCode == JOB_END_DATA_REQUEST_CODE) {
-            try {
-                Bundle bundle = data.getExtras();
-                int actualQuantity = bundle.getInt("quantity", 0);
-                JSONObject jsonPostBody = new JSONObject();
-                jsonPostBody.put("quantity", actualQuantity);
-                jsonPostBody.put("setting", false);
-                RequestQueue queue = Volley.newRequestQueue(this);
-                String url = "http://" + dbHelper.getServerAddress() + "/pneumatrolendjob";
-
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
-                        url,
-                        jsonPostBody,
-                        new EndActivityResponseListener(this),
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.v("ErrorListener", String.valueOf(error));
-                                Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
-                                finish();
-                            }
-                        });
-
-                queue.add(jsonObjectRequest);
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (e.getMessage() != null) {
-                    Log.e(TAG, e.getMessage());
-                }
+            if (resultCode == RESULT_OK){
+                finish();
             }
         }
     }

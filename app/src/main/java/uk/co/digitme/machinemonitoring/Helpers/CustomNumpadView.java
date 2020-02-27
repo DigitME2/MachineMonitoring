@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Helpers;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+
+import uk.co.digitme.machinemonitoring.R;
 
 /**
  * View for the custom keyboard, using only numbers
@@ -17,7 +19,7 @@ public class CustomNumpadView extends KeyboardView {
     Keyboard kb = null;
     public CustomNumpadView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        kb = new Keyboard(context,R.xml.keyboard);
+        kb = new Keyboard(context, R.xml.keyboard);
     }
 
     public void setActionListenerActivity(Activity act){

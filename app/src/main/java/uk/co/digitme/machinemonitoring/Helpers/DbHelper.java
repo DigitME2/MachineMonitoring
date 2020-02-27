@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Helpers;
 
 import android.content.ContentValues;
 import android.content.Context;

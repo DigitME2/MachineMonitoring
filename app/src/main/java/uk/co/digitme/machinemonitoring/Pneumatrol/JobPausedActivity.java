@@ -24,10 +24,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import uk.co.digitme.machinemonitoring.DbHelper;
-import uk.co.digitme.machinemonitoring.EndActivityResponseListener;
-import uk.co.digitme.machinemonitoring.LoggedInActivity;
-import uk.co.digitme.machinemonitoring.OnOneOffClickListener;
+import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
+import uk.co.digitme.machinemonitoring.Helpers.EndActivityResponseListener;
+import uk.co.digitme.machinemonitoring.Helpers.LoggedInActivity;
+import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
 import uk.co.digitme.machinemonitoring.R;
 
 /**

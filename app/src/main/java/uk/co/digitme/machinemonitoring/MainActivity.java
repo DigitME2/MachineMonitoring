@@ -28,9 +28,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import uk.co.digitme.machinemonitoring.Default.JobInProgressActivity;
-import uk.co.digitme.machinemonitoring.Default.JobInfoActivity;
 import uk.co.digitme.machinemonitoring.Default.LoginActivity;
-import uk.co.digitme.machinemonitoring.Default.SettingsActivity;
+import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
+import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
 import uk.co.digitme.machinemonitoring.Pneumatrol.JobPausedActivity;
 import uk.co.digitme.machinemonitoring.Pneumatrol.SettingInProgressActivity;
 
@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String DEFAULT_URL = "172.23.167.175";
 
     public static final int REQUEST_LOGIN = 9000;
+    public static final int REQUEST_START_JOB = 4000;
+    public static final int REQUEST_END_JOB = 4001;
     public static final int RESULT_NO_JOB = 8001;
 
     public static final String TAG = "MainActivity";
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new DbHelper(getApplicationContext());
 
         setContentView(R.layout.activity_main);
+        //TODO Fix the error that shows up when the server can't be found
         getSupportActionBar().setTitle("");
 
         // Status text and retry/change server buttons.
@@ -211,11 +214,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void defaultWorkFlow(JSONObject response){
-        String colour;
-        String jobNumber;
+        // Get the state from the server response
         String state;
         try {
-            // Get the state from the server response
             state = response.getString("state");
             Log.d(TAG, "Response: " + response.toString());
         } catch (Exception e) {
@@ -223,58 +224,60 @@ public class MainActivity extends AppCompatActivity {
             mStatusText.setText("Bad server response");
             return;
         }
+        // Depending on the state, launch the corresponding activity
         switch (state) {
-            // Depending on the state, launch the corresponding activity
-            case "no_user":
-                // There is no user logged in on this device.
-                // Launch the login screen
-                Log.d(TAG, "State: no user");
-                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                String machineText = "Could not get assigned machine";
-                String IP = "";
-                try{
-                    if (response.has("ip")){
-                        IP = response.getString("ip");
-                    }
-                    if (response.has("machine")){
-                        machineText = response.getString("machine");
-                    }
-
-                } catch (JSONException je){
-                    je.printStackTrace();
-                }
-                loginIntent.putExtra("machineText", machineText);
-                loginIntent.putExtra("IP", IP);
-                startActivity(loginIntent);
-                break;
             case "no_job":
-                // There is no active job on this device/machine
-                // Launch the "start new job" activity
+                // There is no active job on this device/machine, launch the "start new job" activity
+
+                // Get the requested data from the server, so we know what data to get from the user
+                JSONObject requestedData;
+                try {
+                    requestedData = response.getJSONObject("requested_data");
+                } catch (JSONException e) {
+                    Log.e(TAG,e.toString());
+                    return;
+                }
+                // Create the intent
+                Intent jobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
+                // The URL tells the data input activity which URL to post its results to
+                jobInfoIntent.putExtra("url", "/androidstartjob");
+                // If True, the data input activity will show a custom numpad
+                jobInfoIntent.putExtra("numericalInput", true);
+                // The data to be entered in the activity
+                jobInfoIntent.putExtra("requestedData", requestedData.toString());
+                // The text shown on the send button
+                jobInfoIntent.putExtra("sendButtonText", "Start New Job");
+                startActivityForResult(jobInfoIntent, REQUEST_START_JOB);
                 Log.d(TAG, "State: no job");
-                Intent jobInfoIntent = new Intent(getApplicationContext(), JobInfoActivity.class);
-                startActivity(jobInfoIntent);
                 break;
+
             case "active_job":
-                // There is an active job, running on this device/machine
-                // Launch the job in progress activity
+                // There is an active job, running on this device/machine, launch the job in progress activity
+                String jobNumber;
+                String colour;
                 String currentActivity;
-                Boolean setting;
+                ArrayList<String> codes = new ArrayList<>();
+                JSONObject requestedDataOnEnd;
+
+                // Get additional data from the response, to pass to the next activity
                 try {
                     jobNumber = response.getString("wo_number");
                     colour = response.getString("colour");
                     currentActivity = response.getString("current_activity");
+                    requestedDataOnEnd = response.getJSONObject("requested_data_on_end");
+                    codes = parseJsonList(response, "activity_codes");
 
-                } catch (JSONException je){
+                } catch (Exception e){
                     // Replace with default values to prevent crash
+                    Log.e(TAG,e.toString());
                     jobNumber = "";
                     colour="#ffffff";
                     currentActivity = "uptime";
+                    requestedDataOnEnd = new JSONObject();
+                    codes.add("Failed to get codes");
                 }
-                Log.d(TAG, "State: job active, Job:" + jobNumber);
                 Intent activeJobIntent = new Intent(getApplicationContext(), JobInProgressActivity.class);
                 // The activity requires possible downtime reasons to populate a dropdown
-                ArrayList<String> codes = new ArrayList<>();
-                codes = parseJsonList(response, "activity_codes");
                 activeJobIntent.putExtra("activityCodes", codes);
                 // Send the current activity to set the spinner on
                 activeJobIntent.putExtra("currentActivity",  currentActivity);
@@ -282,7 +285,11 @@ public class MainActivity extends AppCompatActivity {
                 activeJobIntent.putExtra("jobNumber", jobNumber);
                 // The activity's background changes depending on the activity
                 activeJobIntent.putExtra("colour", colour);
+                // The data that the server wants from the user when ending a job. This will be passed along to the next activity
+                activeJobIntent.putExtra("requestedDataOnEnd", requestedDataOnEnd.toString());
                 startActivity(activeJobIntent);
+
+                Log.d(TAG, "State: job active, Job:" + jobNumber);
                 break;
 
 
@@ -298,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private void pneumatrolWorkflow(JSONObject response){
         String state;
         try {
@@ -311,50 +319,30 @@ public class MainActivity extends AppCompatActivity {
         }
         String colour;
         String jobNumber;
+        String currentActivity;
+        JSONObject requestedDataOnEnd;
         switch (state) {
             // Depending on the state, launch the corresponding activity
-            case "no_user":
-                // There is no user logged in on this device.
-                // Launch the login screen
-                Log.d(TAG, "State: no user");
-                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                String machineText = "Could not get assigned machine";
-                String IP = "";
-                try{
-                    if (response.has("ip")){
-                        IP = response.getString("ip");
-                    }
-                    if (response.has("machine")){
-                        machineText = response.getString("machine");
-                    }
-
-                } catch (JSONException je){
-                    je.printStackTrace();
-                }
-                loginIntent.putExtra("machineText", machineText);
-                loginIntent.putExtra("IP", IP);
-                startActivity(loginIntent);
-                break;
             case "no_job":
-                // There is no active job on this device/machine
-                // Launch the "start new job" activity
-                Log.d(TAG, "State: no job");
+                // There is no active job on this device/machine, launch the "start new job" activity
                 Intent jobInfoIntent = new Intent(getApplicationContext(), uk.co.digitme.machinemonitoring.Pneumatrol.JobInfoActivity.class);
                 startActivity(jobInfoIntent);
+                Log.d(TAG, "State: no job");
                 break;
             case "active_job":
-                // There is an active job, running on this device/machine
-                // Launch the job in progress activity
-                String currentActivity;
+                // There is an active job, running on this device/machine, launch the job in progress activity
+
                 try {
                     jobNumber = response.getString("wo_number");
                     colour = response.getString("colour");
                     currentActivity = response.getString("current_activity");
+                    requestedDataOnEnd = response.getJSONObject("requested_data_on_end");
                 } catch (JSONException je){
                     // Replace with default values to prevent crash
                     jobNumber = "";
                     colour="#ffffff";
                     currentActivity = "uptime";
+                    requestedDataOnEnd = new JSONObject();
                 }
                 Log.d(TAG, "State: job active, Job:" + jobNumber);
                 Intent activeJobIntent = new Intent(getApplicationContext(), uk.co.digitme.machinemonitoring.Pneumatrol.JobInProgressActivity.class);
@@ -364,6 +352,8 @@ public class MainActivity extends AppCompatActivity {
                 activeJobIntent.putExtra("currentActivity",  currentActivity);
                 // The activity's background changes depending on the activity
                 activeJobIntent.putExtra("colour", colour);
+                // The data that the server wants from the user when ending a job. This will be passed along to the next activity
+                activeJobIntent.putExtra("requestedDataOnEnd", requestedDataOnEnd.toString());
                 startActivity(activeJobIntent);
                 break;
 
@@ -375,7 +365,6 @@ public class MainActivity extends AppCompatActivity {
                     // Replace with default values to prevent crash
                     jobNumber = "";
                     colour="#ffffff";
-                    currentActivity = "";
                 }
                 Log.d(TAG, "State: setting, Job:" + jobNumber);
                 Intent pausedIntent = new Intent(getApplicationContext(), JobPausedActivity.class);
@@ -394,10 +383,12 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     jobNumber = response.getString("wo_number");
                     colour = response.getString("colour");
+                    requestedDataOnEnd = response.getJSONObject("requested_data_on_end");
                 } catch (JSONException je){
                     // Replace with default values to prevent crash
                     jobNumber = "";
                     colour="#ffffff";
+                    requestedDataOnEnd = new JSONObject();
                 }
                 Log.d(TAG, "State: setting, Job:" + jobNumber);
                 Intent settingIntent = new Intent(getApplicationContext(), SettingInProgressActivity.class);
@@ -405,6 +396,8 @@ public class MainActivity extends AppCompatActivity {
                 settingIntent.putExtra("jobNumber", jobNumber);
                 // The activity's background changes depending on the activity
                 settingIntent.putExtra("colour", colour);
+                // The data that the server wants from the user when ending a job. This will be passed along to the next activity
+                settingIntent.putExtra("requestedDataOnEnd", requestedDataOnEnd.toString());
                 startActivity(settingIntent);
                 break;
 

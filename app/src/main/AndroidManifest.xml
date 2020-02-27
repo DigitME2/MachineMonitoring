@@ -12,16 +12,11 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Default.EndJobActivity" />
-        <activity android:name=".Default.SettingsActivity" />
-        <activity android:name=".Default.JobNumberActivity" />
+
         <activity android:name=".Default.JobInProgressActivity" />
         <activity
             android:name=".Default.LoginActivity"
             android:label="@string/title_activity_login" />
-        <activity
-            android:name=".Default.JobInfoActivity"
-            android:label="@string/title_activity_job_info" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,11 +26,11 @@
         </activity>
         <activity android:name=".Pneumatrol.JobPausedActivity" />
         <activity android:name=".Pneumatrol.SettingInProgressActivity" />
-        <activity android:name=".Pneumatrol.SettingsActivity" />
         <activity android:name=".Pneumatrol.JobInfoActivity" />
-        <activity android:name=".Pneumatrol.EndJobActivity" />
         <activity android:name=".Pneumatrol.JobNumberActivity" />
         <activity android:name=".Pneumatrol.JobInProgressActivity" />
+        <activity android:name=".DataEntryActivity" />
+        <activity android:name=".SettingsActivity" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

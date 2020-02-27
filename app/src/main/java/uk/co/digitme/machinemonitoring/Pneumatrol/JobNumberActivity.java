@@ -9,7 +9,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-import uk.co.digitme.machinemonitoring.LoggedInActivity;
+import uk.co.digitme.machinemonitoring.Helpers.LoggedInActivity;
 import uk.co.digitme.machinemonitoring.R;
 
 

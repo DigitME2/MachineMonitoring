@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Helpers;
 
 import android.os.Handler;
 import android.os.SystemClock;

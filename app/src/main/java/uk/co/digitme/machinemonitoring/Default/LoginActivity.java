@@ -23,10 +23,10 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
 
-import uk.co.digitme.machinemonitoring.CustomNumpadView;
-import uk.co.digitme.machinemonitoring.DbHelper;
-import uk.co.digitme.machinemonitoring.EndActivityResponseListener;
-import uk.co.digitme.machinemonitoring.OnOneOffClickListener;
+import uk.co.digitme.machinemonitoring.Helpers.CustomNumpadView;
+import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
+import uk.co.digitme.machinemonitoring.Helpers.EndActivityResponseListener;
+import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
 import uk.co.digitme.machinemonitoring.R;
 
 /**

@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring.Default;
+package uk.co.digitme.machinemonitoring;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,7 +12,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 
-import uk.co.digitme.machinemonitoring.DbHelper;
+import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.R;
 
 
@@ -36,7 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.pneumatrol_activity_settings);
 
         final DbHelper dbHelper = new DbHelper(getApplicationContext());
 

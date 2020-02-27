@@ -63,6 +63,7 @@
     <string name="notes_hint">Notes</string>
     <string name="button_font_family">sans-serif-black</string>
     <string name="form_font_family">sans-serif-black</string>
+    <string name="wo_order">Work Order</string>
 
 
 </resources>

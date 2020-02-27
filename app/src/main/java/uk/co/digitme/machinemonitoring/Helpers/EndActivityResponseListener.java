@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring;
+package uk.co.digitme.machinemonitoring.Helpers;
 
 import android.app.Activity;
 import android.util.Log;
@@ -8,6 +8,9 @@ import com.android.volley.Response;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static android.app.Activity.RESULT_OK;
+import static android.telephony.MbmsDownloadSession.RESULT_CANCELLED;
 
 
 /**
@@ -30,17 +33,20 @@ public class EndActivityResponseListener implements Response.Listener<JSONObject
         try {
             // Finish the activity if success is true
             if (response.getBoolean("success")) {
+                mActivity.setResult(RESULT_OK);
                 mActivity.finish();
             } else {
                 // If success is false, print the reason to the user
                 Toast.makeText(mActivity.getApplicationContext(),
                         response.getString("reason"),
                         Toast.LENGTH_SHORT).show();
+                mActivity.setResult(RESULT_OK);
                 mActivity.finish();
             }
         } catch (JSONException e) {
             Log.v("ServerResponseListener", e.toString());
             Log.v("ServerResponseListener", "Failed parsing server response: " + response.toString());
+            mActivity.setResult(RESULT_CANCELLED);
             mActivity.finish();
         }
     }

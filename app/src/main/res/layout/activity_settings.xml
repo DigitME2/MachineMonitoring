@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="uk.co.digitme.machinemonitoring.Default.SettingsActivity">
+    tools:context="uk.co.digitme.machinemonitoring.SettingsActivity">
 
     <Switch
         android:id="@+id/lock_task_switch"

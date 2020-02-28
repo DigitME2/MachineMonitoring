@@ -38,7 +38,7 @@ import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
  * This activity requests information from the user, and then POSTs the data to a request using
  * Volley. The data requested, and the post address are supplied via an intent
  */
-
+// TODO dont save job numbers as ints cause it will remove the leading zero
 public class DataEntryActivity extends LoggedInActivity {
 
     private final String TAG = "JobInfoActivity";
@@ -50,6 +50,7 @@ public class DataEntryActivity extends LoggedInActivity {
     JSONObject requestedData;
     String[] requestedDataKeys;
     String[] requestedDataTitles;
+    JSONObject requestedDataAutoFill;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +77,21 @@ public class DataEntryActivity extends LoggedInActivity {
         requestedDataTitles = new String[requestedData.length()];
         requestedDataKeys = new String[requestedData.length()];
 
+        // Get any autofill data sent by the server
+        try {
+            String jsonString = getIntent().getStringExtra("requestedDataAutofill");
+            if (jsonString != null) {
+                requestedDataAutoFill = new JSONObject(jsonString);
+            }
+            else {
+                requestedDataAutoFill = new JSONObject();  //Initialise empty object
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, e.toString());
+        }
+
+
         // Iterate through the JSON object and add the data to arrays
         Iterator<String> iterator = requestedData.keys();
         for (int i = 0; iterator.hasNext(); i++) {
@@ -95,7 +111,6 @@ public class DataEntryActivity extends LoggedInActivity {
         editTexts = new EditText[requestedData.length()];
         boolean numericalInput = getIntent().getBooleanExtra("numericalInput", false);
         for (int i = 0; i < requestedData.length(); i++) {
-
             LayoutInflater inflater = LayoutInflater.from(this);
             LinearLayout newRow = (LinearLayout) inflater.inflate(R.layout.data_input_item, viewGroup, false);
             parentLayout.addView(newRow);
@@ -104,6 +119,15 @@ public class DataEntryActivity extends LoggedInActivity {
             tv.setText(requestedDataTitles[i]);
             if (numericalInput) {
                 editTexts[i].setShowSoftInputOnFocus(false);
+            }
+            // Auto fill the edit text if a value has been given
+            if (requestedDataAutoFill.has(requestedDataKeys[i])){
+                try {
+                    editTexts[i].setText(requestedDataAutoFill.getString(requestedDataKeys[i]));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, e.toString());
+                }
             }
         }
 

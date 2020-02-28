@@ -321,14 +321,49 @@ public class MainActivity extends AppCompatActivity {
         String jobNumber;
         String currentActivity;
         JSONObject requestedDataOnEnd;
+
         switch (state) {
             // Depending on the state, launch the corresponding activity
             case "no_job":
                 // There is no active job on this device/machine, launch the "start new job" activity
-                Intent jobInfoIntent = new Intent(getApplicationContext(), uk.co.digitme.machinemonitoring.Pneumatrol.JobInfoActivity.class);
-                startActivity(jobInfoIntent);
+                // Create the intent
+                Intent jobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
+                // Get the requested data from the server, so we know what data to get from the user
+                JSONObject requestedData;
+                boolean setting;
+                try {
+                    setting = response.getBoolean("setting");
+                    requestedData = response.getJSONObject("requested_data");
+                    jobInfoIntent.putExtra("requestedData", requestedData.toString());
+                    if (response.has("autofill_data")) {
+                        // Add autofill data for the data input boxes to the intent
+                        jobInfoIntent.putExtra("requestedDataAutofill", response.getJSONObject("autofill_data").toString());
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG,e.toString());
+                    return;
+                }
+
+                // The URL tells the data input activity which URL to post its results to
+                // POST to a different URL and show a different button depending on if the job is setting
+                if (setting) {
+                    jobInfoIntent.putExtra("url", "/pneumatrolstartsetting");
+                    jobInfoIntent.putExtra("sendButtonText", "Start Setting");
+                }
+                else {
+                    jobInfoIntent.putExtra("url", "/pneumatrolstartjob");
+                    jobInfoIntent.putExtra("sendButtonText", "Start New Job");
+                }
+                // If True, the data input activity will show a custom numpad
+                jobInfoIntent.putExtra("numericalInput", true);
+
+
+
+
+                startActivityForResult(jobInfoIntent, REQUEST_START_JOB);
                 Log.d(TAG, "State: no job");
                 break;
+
             case "active_job":
                 // There is an active job, running on this device/machine, launch the job in progress activity
 

@@ -98,7 +98,7 @@ public class JobInProgressActivity extends LoggedInActivity {
     private void pauseJob(){
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = "http://" + dbHelper.getServerAddress() + "/pneumatrolpausejob";
+            String url = dbHelper.getServerAddress() + "/pneumatrolpausejob";
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                     url,

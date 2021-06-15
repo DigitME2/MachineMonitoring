@@ -190,7 +190,7 @@ public class JobInfoActivity extends LoggedInActivity {
         // Send the login request to the server. End this activity if successful
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = "http://" + dbHelper.getServerAddress() + "/pneumatrolstartjob";
+            String url = dbHelper.getServerAddress() + "/pneumatrolstartjob";
             JSONObject jsonRequestBody = new JSONObject();
             int plannedRunTime = Integer.parseInt(mPlannedRunTimeEditText.getText().toString());
             int plannedQuantity = Integer.parseInt(mPlannedQuantityEditText.getText().toString());
@@ -251,7 +251,7 @@ public class JobInfoActivity extends LoggedInActivity {
         // Send the login request to the server. End this activity if successful
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = "http://" + dbHelper.getServerAddress() + "/pneumatrolstartjob";
+            String url = dbHelper.getServerAddress() + "/pneumatrolstartjob";
             JSONObject jsonRequestBody = new JSONObject();
             int plannedSetTime = Integer.parseInt(mPlannedSetTime.getText().toString());
             jsonRequestBody.put("wo_number", mJobNumber);

@@ -36,7 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.pneumatrol_activity_settings);
+        setContentView(R.layout.activity_settings);
 
         final DbHelper dbHelper = new DbHelper(getApplicationContext());
 

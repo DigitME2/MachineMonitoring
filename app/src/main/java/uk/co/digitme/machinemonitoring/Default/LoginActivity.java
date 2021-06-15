@@ -124,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
         // Send the login request to the server. End this activity if successful
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = "http://" + dbHelper.getServerAddress() + "/androidlogin";
+            String url = dbHelper.getServerAddress() + "/androidlogin";
             JSONObject jsonBody = new JSONObject();
             jsonBody.put("user_id", userIdEditText.getText().toString());
             jsonBody.put("password", pinCodeEditText.getText().toString());

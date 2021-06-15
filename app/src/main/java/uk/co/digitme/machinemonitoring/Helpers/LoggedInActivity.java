@@ -45,7 +45,7 @@ public abstract class LoggedInActivity extends AppCompatActivity {
             try {
                 DbHelper dbHelper = new DbHelper(getApplicationContext());
                 RequestQueue queue = Volley.newRequestQueue(this);
-                String url = "http://" + dbHelper.getServerAddress() + "/androidlogout";
+                String url = dbHelper.getServerAddress() + "/androidlogout";
 
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                         url,

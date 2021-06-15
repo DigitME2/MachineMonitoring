@@ -154,7 +154,7 @@ public class JobInProgressActivity extends LoggedInActivity {
         // Contact the server to inform of the update
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = "http://" + dbHelper.getServerAddress() + "/androidupdate";
+            String url = dbHelper.getServerAddress() + "/androidupdate";
             JSONObject jsonBody = new JSONObject();
 
             jsonBody.put("selected_activity_code", activityCodeSpinner.getSelectedItem().toString());

@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -44,7 +45,7 @@ import uk.co.digitme.machinemonitoring.Pneumatrol.SettingInProgressActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String DEFAULT_URL = "172.23.167.175";
+    public static final String DEFAULT_URL = "http://192.168.0.100";
 
     public static final int REQUEST_LOGIN = 9000;
     public static final int REQUEST_START_JOB = 4000;
@@ -115,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = "http://" + dbHelper.getServerAddress() + "/checkstate";
+            String url = dbHelper.getServerAddress() + "/checkstate";
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
                     url,
                     null,

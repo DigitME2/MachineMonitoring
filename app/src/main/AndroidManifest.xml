@@ -24,11 +24,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Pneumatrol.JobPausedActivity" />
-        <activity android:name=".Pneumatrol.SettingInProgressActivity" />
-        <activity android:name=".Pneumatrol.JobInfoActivity" />
-        <activity android:name=".Pneumatrol.JobNumberActivity" />
-        <activity android:name=".Pneumatrol.JobInProgressActivity" />
+        <activity android:name=".Pausable.JobPausedActivity" />
+        <activity android:name=".Pausable.SettingInProgressActivity" />
+        <activity android:name=".Pausable.JobInfoActivity" />
+        <activity android:name=".Pausable.JobNumberActivity" />
+        <activity android:name=".Pausable.JobInProgressActivity" />
         <activity android:name=".DataEntryActivity" />
         <activity android:name=".SettingsActivity" />
     </application>

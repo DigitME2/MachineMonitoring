@@ -1,5 +1,4 @@
-package uk.co.digitme.machinemonitoring.Pneumatrol;
-
+package uk.co.digitme.machinemonitoring.Pausable;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -31,28 +30,33 @@ import uk.co.digitme.machinemonitoring.Helpers.LoggedInActivity;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
 import uk.co.digitme.machinemonitoring.R;
 
-import static uk.co.digitme.machinemonitoring.Default.JobInProgressActivity.JOB_END_DATA_REQUEST_CODE;
 
-public class SettingInProgressActivity extends LoggedInActivity {
+/**
+ * The activity shown when the server reports this device's job is in progress
+ */
+public class JobInProgressActivity extends LoggedInActivity {
 
-    public static final int SETTING_END_DATA_REQUEST_CODE = 9003;
+    final String TAG = "JobInProgressActivity";
+    public static final int JOB_END_DATA_REQUEST_CODE = 9002;
+
+    Button mPauseJobButton;
+    Button mEndJobButton;
+
     String jobNumber;
-
-    Button mEndButton;
+    String currentActivity;
 
     DbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        dbHelper = new DbHelper(getApplicationContext());
         // Set to fullscreen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // Stop the screen timeout
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.pneumatrol_activity_setting_in_progress);
-
-        dbHelper = new DbHelper(getApplicationContext());
+        setContentView(R.layout.pausable_activity_job_in_progress);
 
         // Change the colour of the background. The colour is sent by the server
         String colour = getIntent().getStringExtra("colour");
@@ -61,25 +65,68 @@ public class SettingInProgressActivity extends LoggedInActivity {
 
         // Set the action bar to read the job number
         jobNumber = getIntent().getStringExtra("jobNumber");
+        currentActivity = getIntent().getStringExtra("currentActivity");
         Log.v(TAG, "Job number: " + jobNumber);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("Job in progress: " + jobNumber);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(jobNumber + " : " + currentActivity);
         // Set the colour of the action bar to match the background
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(colour)));
 
-        mEndButton = findViewById(R.id.end_job_button);
 
-        mEndButton.setOnClickListener(new OnOneOffClickListener() {
+        mEndJobButton = findViewById(R.id.end_job_button);
+        mPauseJobButton = findViewById(R.id.pause_job_button);
+
+        mEndJobButton.setOnClickListener(new OnOneOffClickListener() {
             @Override
             public void onSingleClick(View view) {
-                endSetting();
+                endJob();
             }
         });
+
+        mPauseJobButton.setOnClickListener(new OnOneOffClickListener() {
+            @Override
+            public void onSingleClick(View view) {
+                pauseJob();
+            }
+        });
+
+
     }
 
-    private void endSetting(){
+    /**
+     * Contacts the server, indicating a job pause has been requested, then finishes this activity
+     */
+    private void pauseJob(){
+        try {
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String url = dbHelper.getServerAddress() + "/pausablepausejob";
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
+                    url,
+                    null,
+                    new EndActivityResponseListener(this),
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.v("ErrorListener", String.valueOf(error));
+                            Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+            queue.add(jsonObjectRequest);
+        } catch (Exception e) {
+            if (e.getMessage() != null) {
+                Log.e(TAG, e.getMessage());
+            }
+        }
+
+
+    }
+
+
+    private void endJob() {
         Intent endJobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
         endJobInfoIntent.putExtra("requestCode", JOB_END_DATA_REQUEST_CODE);
-        endJobInfoIntent.putExtra("url", "/pneumatrolendsetting");
+        endJobInfoIntent.putExtra("url", "/pausableendjob");
         endJobInfoIntent.putExtra("numericalInput", true);
         // Pass the requested data from the initial intent
         endJobInfoIntent.putExtra("requestedData", getIntent().getStringExtra("requestedDataOnEnd"));

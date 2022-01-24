@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="uk.co.digitme.machinemonitoring.uk.co.digitme.pneumatrol.Pneumatrol.JobInfoActivity"
+    tools:context="uk.co.digitme.machinemonitoring.uk.co.digitme.pausable.Pausable.JobInfoActivity"
     android:fitsSystemWindows="true">
 
 

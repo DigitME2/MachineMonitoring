@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    tools:context="uk.co.digitme.machinemonitoring.uk.co.digitme.pneumatrol.Pneumatrol.JobNumberActivity">
+    tools:context="uk.co.digitme.machinemonitoring.uk.co.digitme.pausable.Pausable.JobNumberActivity">
 
 
         <LinearLayout

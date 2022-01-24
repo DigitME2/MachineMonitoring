@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring.Pneumatrol;
+package uk.co.digitme.machinemonitoring.Pausable;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -54,7 +54,7 @@ public class JobPausedActivity extends LoggedInActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // Stop the screen timeout
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.pneumatrol_activity_job_paused);
+        setContentView(R.layout.pausable_activity_job_paused);
 
         // Change the colour of the background. The colour is sent by the server
         String colour = getIntent().getStringExtra("colour");
@@ -109,7 +109,7 @@ public class JobPausedActivity extends LoggedInActivity {
     private void resumeJob(){
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = dbHelper.getServerAddress() + "/pneumatrolresumejob";
+            String url = dbHelper.getServerAddress() + "/pausableresumejob";
             JSONObject jsonBody = new JSONObject();
 
             jsonBody.put("downtime_reason", mDowntimeReasonsSpinner.getSelectedItem().toString());

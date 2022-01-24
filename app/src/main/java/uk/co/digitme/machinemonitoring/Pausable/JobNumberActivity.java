@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring.Pneumatrol;
+package uk.co.digitme.machinemonitoring.Pausable;
 
 import android.content.Context;
 import android.content.Intent;
@@ -32,7 +32,7 @@ public class JobNumberActivity extends LoggedInActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // Stop the screen timeout
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.pneumatrol_activity_job_number);
+        setContentView(R.layout.pausable_activity_job_number);
 
         getSupportActionBar().setTitle("Start a Job");
 

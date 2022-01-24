@@ -32,8 +32,8 @@ import uk.co.digitme.machinemonitoring.Default.JobInProgressActivity;
 import uk.co.digitme.machinemonitoring.Default.LoginActivity;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
-import uk.co.digitme.machinemonitoring.Pneumatrol.JobPausedActivity;
-import uk.co.digitme.machinemonitoring.Pneumatrol.SettingInProgressActivity;
+import uk.co.digitme.machinemonitoring.Pausable.JobPausedActivity;
+import uk.co.digitme.machinemonitoring.Pausable.SettingInProgressActivity;
 
 /**
  * The app goes to this screen every time it is opens. This activity contacts the server to find out
@@ -171,8 +171,8 @@ public class MainActivity extends AppCompatActivity {
                                         defaultWorkFlow(response);
                                         break;
 
-                                    case "pneumatrol":
-                                        pneumatrolWorkflow(response);
+                                    case "pausable":
+                                        pausableWorkflow(response);
                                         break;
 
                                     case "":
@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void pneumatrolWorkflow(JSONObject response){
+    private void pausableWorkflow(JSONObject response){
         String state;
         try {
             // Get the state from the server response
@@ -348,11 +348,11 @@ public class MainActivity extends AppCompatActivity {
                 // The URL tells the data input activity which URL to post its results to
                 // POST to a different URL and show a different button depending on if the job is setting
                 if (setting) {
-                    jobInfoIntent.putExtra("url", "/pneumatrolstartsetting");
+                    jobInfoIntent.putExtra("url", "/pausablestartsetting");
                     jobInfoIntent.putExtra("sendButtonText", "Start Setting");
                 }
                 else {
-                    jobInfoIntent.putExtra("url", "/pneumatrolstartjob");
+                    jobInfoIntent.putExtra("url", "/pausablestartjob");
                     jobInfoIntent.putExtra("sendButtonText", "Start New Job");
                 }
                 // If True, the data input activity will show a custom numpad
@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
                     requestedDataOnEnd = new JSONObject();
                 }
                 Log.d(TAG, "State: job active, Job:" + jobNumber);
-                Intent activeJobIntent = new Intent(getApplicationContext(), uk.co.digitme.machinemonitoring.Pneumatrol.JobInProgressActivity.class);
+                Intent activeJobIntent = new Intent(getApplicationContext(), uk.co.digitme.machinemonitoring.Pausable.JobInProgressActivity.class);
                 // The activity shows the job number on the action bar);
                 activeJobIntent.putExtra("jobNumber", jobNumber);
                 // Send the current activity to show in the action bar

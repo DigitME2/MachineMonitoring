@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring.Pneumatrol;
+package uk.co.digitme.machinemonitoring.Pausable;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -66,7 +66,7 @@ public class JobInfoActivity extends LoggedInActivity {
         // The job number isn't entered from this screen because it has a simple numeric keyboard
         startActivityForResult(jobNumberIntent, 9000);
 
-        setContentView(R.layout.pneumatrol_activity_job_info);
+        setContentView(R.layout.pausable_activity_job_info);
         mPlannedSetTime = findViewById(R.id.data_entry_4);
         mPlannedRunTimeEditText = findViewById(R.id.data_entry_1);
         mPlannedQuantityEditText = findViewById(R.id.data_entry_2);
@@ -190,7 +190,7 @@ public class JobInfoActivity extends LoggedInActivity {
         // Send the login request to the server. End this activity if successful
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = dbHelper.getServerAddress() + "/pneumatrolstartjob";
+            String url = dbHelper.getServerAddress() + "/pausablestartjob";
             JSONObject jsonRequestBody = new JSONObject();
             int plannedRunTime = Integer.parseInt(mPlannedRunTimeEditText.getText().toString());
             int plannedQuantity = Integer.parseInt(mPlannedQuantityEditText.getText().toString());
@@ -251,7 +251,7 @@ public class JobInfoActivity extends LoggedInActivity {
         // Send the login request to the server. End this activity if successful
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = dbHelper.getServerAddress() + "/pneumatrolstartjob";
+            String url = dbHelper.getServerAddress() + "/pausablestartjob";
             JSONObject jsonRequestBody = new JSONObject();
             int plannedSetTime = Integer.parseInt(mPlannedSetTime.getText().toString());
             jsonRequestBody.put("wo_number", mJobNumber);

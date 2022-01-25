@@ -44,8 +44,8 @@
     <string name="retry_button_text">Retry</string>
 
     <string name="set_address_button_text">Set Server Address</string>
-    <string name="server_address_textview">Server Address</string>
-    <string name="server_address_hint"> Address e.g. http://192.168.0.100</string>
+    <string name="server_address_textview">Enter the full address to your server e.g. http://192.168.0.1:8000</string>
+    <string name="server_address_hint"> Address e.g. http://192.168.0.1:8000</string>
 
     <string name="action_unpause">Resume Job</string>
     <string name="downtime_reasons_spinner_prompt">Reason for stoppage</string>

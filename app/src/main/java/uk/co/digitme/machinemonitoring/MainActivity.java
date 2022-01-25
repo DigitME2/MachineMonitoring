@@ -1,6 +1,7 @@
 package uk.co.digitme.machinemonitoring;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -38,7 +38,7 @@ import uk.co.digitme.machinemonitoring.Pausable.SettingInProgressActivity;
 /**
  * The app goes to this screen every time it is opens. This activity contacts the server to find out
  * what state this app should be in (eg no user, job active). This activity then starts the activity
- *
+ * <p>
  * If the activity cannot connect to the server, it shows options to retry and change the server ip
  */
 
@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     Button mSetAddressButton;
 
     DbHelper dbHelper;
+    SharedPreferences prefs = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         dbHelper = new DbHelper(getApplicationContext());
+        prefs = getSharedPreferences("uk.samban.machinemonitoring", MODE_PRIVATE);
 
         setContentView(R.layout.activity_main);
         //TODO Fix the error that shows up when the server can't be found
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         mRetryButton = findViewById(R.id.retry_button);
 
         // The retry button attempts to contact the server again.
-        mRetryButton.setOnClickListener(new OnOneOffClickListener(){
+        mRetryButton.setOnClickListener(new OnOneOffClickListener() {
             @Override
             public void onSingleClick(View v) {
                 checkState();
@@ -85,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         });
         // The "set address" button opens a new activity allowing the user to change the server ip
         mSetAddressButton = findViewById(R.id.set_address_button);
-        mSetAddressButton.setOnClickListener(new View.OnClickListener(){
+        mSetAddressButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -97,20 +99,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        // Hide the buttons by default. This stops them showing during transitions between activities
-        mStatusText.setVisibility(View.INVISIBLE);
-        mRetryButton.setVisibility(View.INVISIBLE);
-        mSetAddressButton.setVisibility(View.INVISIBLE);
-        // When arriving at this page, immediately contact the server to see which screen the app
-        // should be on, and start that activity
-        checkState();
+        // On the first run, show the "set address" button immediately
+        if (prefs.getBoolean("firstrun", true)) {
+            mStatusText.setVisibility(View.INVISIBLE);
+            mRetryButton.setVisibility(View.INVISIBLE);
+            mSetAddressButton.setVisibility(View.VISIBLE);
+            prefs.edit().putBoolean("firstrun", false).apply();
+        }
+        else {
+            // Hide the buttons by default. This stops them showing during transitions between activities
+            mStatusText.setVisibility(View.INVISIBLE);
+            mRetryButton.setVisibility(View.INVISIBLE);
+            mSetAddressButton.setVisibility(View.INVISIBLE);
+            // When arriving at this page, immediately contact the server to see which screen the app
+            // should be on, and start that activity
+            checkState();
+        }
     }
 
     /**
      * Contacts the server to get the current state of this device e.g. active job, no user
-     *
-     *  Also launches the corresponding activity
+     * <p>
+     * Also launches the corresponding activity
      */
     private void checkState() {
 
@@ -140,21 +150,21 @@ public class MainActivity extends AppCompatActivity {
                             }
                             // If the server shows no user logged in, start the login screen
                             // This occurs regardless of the machine's workflow
-                            if (state.equals("no_user")){
+                            if (state.equals("no_user")) {
                                 // Launch the login screen
                                 Log.d(TAG, "State: no user");
                                 Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
                                 String machineText = "Could not get assigned machine";
                                 String IP = "";
-                                try{
-                                    if (response.has("ip")){
+                                try {
+                                    if (response.has("ip")) {
                                         IP = response.getString("ip");
                                     }
-                                    if (response.has("machine")){
+                                    if (response.has("machine")) {
                                         machineText = response.getString("machine");
                                     }
 
-                                } catch (JSONException je){
+                                } catch (JSONException je) {
                                     je.printStackTrace();
                                     mStatusText.setVisibility(View.VISIBLE);
                                     mRetryButton.setVisibility(View.VISIBLE);
@@ -163,8 +173,7 @@ public class MainActivity extends AppCompatActivity {
                                 loginIntent.putExtra("machineText", machineText);
                                 loginIntent.putExtra("IP", IP);
                                 startActivity(loginIntent);
-                            }
-                            else {
+                            } else {
                                 // Direct the user differently depending on the workflow type
                                 switch (workflowType) {
                                     case "default":
@@ -191,14 +200,13 @@ public class MainActivity extends AppCompatActivity {
                     // Show a different error message depending on the error
                     if (error instanceof TimeoutError || error instanceof NoConnectionError) {
                         mStatusText.setText("Could not connect to network");
-                    } else if (error instanceof ServerError){
+                    } else if (error instanceof ServerError) {
                         mStatusText.setText("Could not connect to server");
                     }
                     Log.v("ErrorListener", String.valueOf(error));
                     Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
                 }
             });
-
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void defaultWorkFlow(JSONObject response){
+    private void defaultWorkFlow(JSONObject response) {
         // Get the state from the server response
         String state;
         try {
@@ -235,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     requestedData = response.getJSONObject("requested_data");
                 } catch (JSONException e) {
-                    Log.e(TAG,e.toString());
+                    Log.e(TAG, e.toString());
                     return;
                 }
                 // Create the intent
@@ -268,11 +276,11 @@ public class MainActivity extends AppCompatActivity {
                     requestedDataOnEnd = response.getJSONObject("requested_data_on_end");
                     codes = parseJsonList(response, "activity_codes");
 
-                } catch (Exception e){
+                } catch (Exception e) {
                     // Replace with default values to prevent crash
-                    Log.e(TAG,e.toString());
+                    Log.e(TAG, e.toString());
                     jobNumber = "";
-                    colour="#ffffff";
+                    colour = "#ffffff";
                     currentActivity = "uptime";
                     requestedDataOnEnd = new JSONObject();
                     codes.add("Failed to get codes");
@@ -281,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
                 // The activity requires possible downtime reasons to populate a dropdown
                 activeJobIntent.putExtra("activityCodes", codes);
                 // Send the current activity to set the spinner on
-                activeJobIntent.putExtra("currentActivity",  currentActivity);
+                activeJobIntent.putExtra("currentActivity", currentActivity);
                 // The activity shows the job number on the action bar
                 activeJobIntent.putExtra("jobNumber", jobNumber);
                 // The activity's background changes depending on the activity
@@ -307,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void pausableWorkflow(JSONObject response){
+    private void pausableWorkflow(JSONObject response) {
         String state;
         try {
             // Get the state from the server response
@@ -341,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
                         jobInfoIntent.putExtra("requestedDataAutofill", response.getJSONObject("autofill_data").toString());
                     }
                 } catch (JSONException e) {
-                    Log.e(TAG,e.toString());
+                    Log.e(TAG, e.toString());
                     return;
                 }
 
@@ -350,15 +358,12 @@ public class MainActivity extends AppCompatActivity {
                 if (setting) {
                     jobInfoIntent.putExtra("url", "/pausablestartsetting");
                     jobInfoIntent.putExtra("sendButtonText", "Start Setting");
-                }
-                else {
+                } else {
                     jobInfoIntent.putExtra("url", "/pausablestartjob");
                     jobInfoIntent.putExtra("sendButtonText", "Start New Job");
                 }
                 // If True, the data input activity will show a custom numpad
                 jobInfoIntent.putExtra("numericalInput", true);
-
-
 
 
                 startActivityForResult(jobInfoIntent, REQUEST_START_JOB);
@@ -373,10 +378,10 @@ public class MainActivity extends AppCompatActivity {
                     colour = response.getString("colour");
                     currentActivity = response.getString("current_activity");
                     requestedDataOnEnd = response.getJSONObject("requested_data_on_end");
-                } catch (JSONException je){
+                } catch (JSONException je) {
                     // Replace with default values to prevent crash
                     jobNumber = "";
-                    colour="#ffffff";
+                    colour = "#ffffff";
                     currentActivity = "uptime";
                     requestedDataOnEnd = new JSONObject();
                 }
@@ -385,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
                 // The activity shows the job number on the action bar);
                 activeJobIntent.putExtra("jobNumber", jobNumber);
                 // Send the current activity to show in the action bar
-                activeJobIntent.putExtra("currentActivity",  currentActivity);
+                activeJobIntent.putExtra("currentActivity", currentActivity);
                 // The activity's background changes depending on the activity
                 activeJobIntent.putExtra("colour", colour);
                 // The data that the server wants from the user when ending a job. This will be passed along to the next activity
@@ -397,10 +402,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     jobNumber = response.getString("wo_number");
                     colour = response.getString("colour");
-                } catch (JSONException je){
+                } catch (JSONException je) {
                     // Replace with default values to prevent crash
                     jobNumber = "";
-                    colour="#ffffff";
+                    colour = "#ffffff";
                 }
                 Log.d(TAG, "State: setting, Job:" + jobNumber);
                 Intent pausedIntent = new Intent(getApplicationContext(), JobPausedActivity.class);
@@ -420,10 +425,10 @@ public class MainActivity extends AppCompatActivity {
                     jobNumber = response.getString("wo_number");
                     colour = response.getString("colour");
                     requestedDataOnEnd = response.getJSONObject("requested_data_on_end");
-                } catch (JSONException je){
+                } catch (JSONException je) {
                     // Replace with default values to prevent crash
                     jobNumber = "";
-                    colour="#ffffff";
+                    colour = "#ffffff";
                     requestedDataOnEnd = new JSONObject();
                 }
                 Log.d(TAG, "State: setting, Job:" + jobNumber);
@@ -452,22 +457,22 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Extract a list of strings from a list in a JSONObject
      *
-     * @param json The JSON object to be parsed
+     * @param json     The JSON object to be parsed
      * @param listName The name of the list to be extracted from the json
      * @return The list as an ArrayList<String>
      */
-    private ArrayList<String> parseJsonList(JSONObject json, String listName){
+    private ArrayList<String> parseJsonList(JSONObject json, String listName) {
         ArrayList<String> reasons = new ArrayList<>();
         JSONArray jsonArray;
         try {
             jsonArray = json.getJSONArray(listName);
             int len = jsonArray.length();
-            for (int i=0;i<len;i++){
+            for (int i = 0; i < len; i++) {
                 reasons.add(jsonArray.get(i).toString());
 
             }
 
-        }catch (JSONException je){
+        } catch (JSONException je) {
             Log.v(TAG, je.toString());
             return null;
         }

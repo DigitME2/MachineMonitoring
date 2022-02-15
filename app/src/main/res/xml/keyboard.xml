@@ -23,6 +23,6 @@
     <Row>
         <Key android:codes="67" android:iconPreview="@drawable/key_delete" android:keyIcon="@drawable/key_delete" android:keyEdgeFlags="left"/>
         <Key android:codes="7" android:keyLabel="0" />
-        <Key android:codes="66" android:keyLabel="Next"  android:keyEdgeFlags="right" />
+        <Key android:codes="56" android:keyLabel="."  android:keyEdgeFlags="right" />
     </Row>
 </Keyboard>

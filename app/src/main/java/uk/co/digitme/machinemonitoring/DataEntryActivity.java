@@ -38,7 +38,6 @@ import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
  * This activity requests information from the user, and then POSTs the data to a request using
  * Volley. The data requested, and the post address are supplied via an intent
  */
-// TODO dont save job numbers as ints cause it will remove the leading zero
 public class DataEntryActivity extends LoggedInActivity {
 
     private final String TAG = "JobInfoActivity";
@@ -148,7 +147,7 @@ public class DataEntryActivity extends LoggedInActivity {
             // Focus on the top box when activity first opens
             editTexts[0].requestFocus();
 
-            // Clicking the Save button ends the activity and returns the data in the boxex
+            // Clicking the Save button ends the activity and returns the data in the boxes
             sendButton.setOnClickListener(new OnOneOffClickListener() {
                 @Override
                 public void onSingleClick(View view) {
@@ -195,13 +194,10 @@ public class DataEntryActivity extends LoggedInActivity {
                     url,
                     resultJson,
                     new EndActivityResponseListener(this),
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.v("ErrorListener", String.valueOf(error));
-                            Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
-                            finish();
-                        }
+                    error -> {
+                        Log.v("ErrorListener", String.valueOf(error));
+                        Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
+                        finish();
                     });
 
             queue.add(jsonObjectRequest);

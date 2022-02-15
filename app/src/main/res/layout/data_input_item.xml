@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:selectAllOnFocus="true"
-            android:inputType="number"
+            android:inputType="text"
             android:gravity="end"
             android:padding="@dimen/form_entry_text_padding"
             android:textSize="@dimen/form_entry_inline_text_size"

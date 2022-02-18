@@ -22,7 +22,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ import java.util.Objects;
 
 import uk.co.digitme.machinemonitoring.DataEntryActivity;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
-import uk.co.digitme.machinemonitoring.Helpers.EndActivityResponseListener;
 import uk.co.digitme.machinemonitoring.Helpers.LoggedInActivity;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
 import uk.co.digitme.machinemonitoring.R;
@@ -123,7 +121,7 @@ public class JobInProgressActivity extends LoggedInActivity {
     private void endJob(){
         Intent endJobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
         endJobInfoIntent.putExtra("requestCode", JOB_END_DATA_REQUEST_CODE);
-        endJobInfoIntent.putExtra("url", "/androidendjob");
+        endJobInfoIntent.putExtra("url", "/android-end-job");
         endJobInfoIntent.putExtra("numericalInput", true);
         // Pass the requested data from the initial intent
         endJobInfoIntent.putExtra("requestedData", getIntent().getStringExtra("requestedDataOnEnd"));
@@ -154,7 +152,7 @@ public class JobInProgressActivity extends LoggedInActivity {
         // Contact the server to inform of the update
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = dbHelper.getServerAddress() + "/androidupdate";
+            String url = dbHelper.getServerAddress() + "/android-update";
             JSONObject jsonBody = new JSONObject();
 
             jsonBody.put("selected_activity_code", activityCodeSpinner.getSelectedItem().toString());

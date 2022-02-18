@@ -109,7 +109,7 @@ public class JobPausedActivity extends LoggedInActivity {
     private void resumeJob(){
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = dbHelper.getServerAddress() + "/pausableresumejob";
+            String url = dbHelper.getServerAddress() + "/pausable-resume-job";
             JSONObject jsonBody = new JSONObject();
 
             jsonBody.put("downtime_reason", mDowntimeReasonsSpinner.getSelectedItem().toString());

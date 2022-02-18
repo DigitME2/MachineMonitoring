@@ -25,9 +25,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".Pausable.JobPausedActivity" />
-        <activity android:name=".Pausable.SettingInProgressActivity" />
-        <activity android:name=".Pausable.JobInfoActivity" />
-        <activity android:name=".Pausable.JobNumberActivity" />
         <activity android:name=".Pausable.JobInProgressActivity" />
         <activity android:name=".DataEntryActivity" />
         <activity android:name=".SettingsActivity" />

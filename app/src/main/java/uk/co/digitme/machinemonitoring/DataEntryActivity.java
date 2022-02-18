@@ -1,6 +1,5 @@
 package uk.co.digitme.machinemonitoring;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,8 +15,6 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -40,7 +37,7 @@ import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
  */
 public class DataEntryActivity extends LoggedInActivity {
 
-    private final String TAG = "JobInfoActivity";
+    private final String TAG = "DataEntryActivity";
 
     DbHelper dbHelper;
     EditText[] editTexts;

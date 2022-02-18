@@ -19,8 +19,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONObject;
-
 import java.util.Objects;
 
 import uk.co.digitme.machinemonitoring.DataEntryActivity;
@@ -98,7 +96,7 @@ public class JobInProgressActivity extends LoggedInActivity {
     private void pauseJob(){
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = dbHelper.getServerAddress() + "/pausablepausejob";
+            String url = dbHelper.getServerAddress() + "/pausable-pause-job";
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                     url,
@@ -126,7 +124,7 @@ public class JobInProgressActivity extends LoggedInActivity {
     private void endJob() {
         Intent endJobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
         endJobInfoIntent.putExtra("requestCode", JOB_END_DATA_REQUEST_CODE);
-        endJobInfoIntent.putExtra("url", "/pausableendjob");
+        endJobInfoIntent.putExtra("url", "/android-end-job");
         endJobInfoIntent.putExtra("numericalInput", true);
         // Pass the requested data from the initial intent
         endJobInfoIntent.putExtra("requestedData", getIntent().getStringExtra("requestedDataOnEnd"));

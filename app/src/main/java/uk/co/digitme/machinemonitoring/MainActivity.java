@@ -33,7 +33,6 @@ import uk.co.digitme.machinemonitoring.Default.LoginActivity;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
 import uk.co.digitme.machinemonitoring.Pausable.JobPausedActivity;
-import uk.co.digitme.machinemonitoring.Pausable.SettingInProgressActivity;
 
 /**
  * The app goes to this screen every time it is opens. This activity contacts the server to find out
@@ -126,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = dbHelper.getServerAddress() + "/checkstate";
+            String url = dbHelper.getServerAddress() + "/check-state";
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
                     url,
                     null,
@@ -249,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                 // Create the intent
                 Intent jobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
                 // The URL tells the data input activity which URL to post its results to
-                jobInfoIntent.putExtra("url", "/androidstartjob");
+                jobInfoIntent.putExtra("url", "/android-start-job");
                 // If True, the data input activity will show a custom numpad
                 jobInfoIntent.putExtra("numericalInput", true);
                 // The data to be entered in the activity
@@ -335,37 +334,25 @@ public class MainActivity extends AppCompatActivity {
             // Depending on the state, launch the corresponding activity
             case "no_job":
                 // There is no active job on this device/machine, launch the "start new job" activity
-                // Create the intent
-                Intent jobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
+
                 // Get the requested data from the server, so we know what data to get from the user
                 JSONObject requestedData;
-                boolean setting;
                 try {
-                    setting = response.getBoolean("setting");
                     requestedData = response.getJSONObject("requested_data");
-                    jobInfoIntent.putExtra("requestedData", requestedData.toString());
-                    if (response.has("autofill_data")) {
-                        // Add autofill data for the data input boxes to the intent
-                        jobInfoIntent.putExtra("requestedDataAutofill", response.getJSONObject("autofill_data").toString());
-                    }
                 } catch (JSONException e) {
                     Log.e(TAG, e.toString());
                     return;
                 }
-
+                // Create the intent
+                Intent jobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
                 // The URL tells the data input activity which URL to post its results to
-                // POST to a different URL and show a different button depending on if the job is setting
-                if (setting) {
-                    jobInfoIntent.putExtra("url", "/pausablestartsetting");
-                    jobInfoIntent.putExtra("sendButtonText", "Start Setting");
-                } else {
-                    jobInfoIntent.putExtra("url", "/pausablestartjob");
-                    jobInfoIntent.putExtra("sendButtonText", "Start New Job");
-                }
+                jobInfoIntent.putExtra("url", "/android-start-job");
                 // If True, the data input activity will show a custom numpad
                 jobInfoIntent.putExtra("numericalInput", true);
-
-
+                // The data to be entered in the activity
+                jobInfoIntent.putExtra("requestedData", requestedData.toString());
+                // The text shown on the send button
+                jobInfoIntent.putExtra("sendButtonText", "Start New Job");
                 startActivityForResult(jobInfoIntent, REQUEST_START_JOB);
                 Log.d(TAG, "State: no job");
                 break;
@@ -418,28 +405,6 @@ public class MainActivity extends AppCompatActivity {
                 codes = parseJsonList(response, "activity_codes");
                 pausedIntent.putExtra("activityCodes", codes);
                 startActivity(pausedIntent);
-                break;
-
-            case "setting":
-                try {
-                    jobNumber = response.getString("wo_number");
-                    colour = response.getString("colour");
-                    requestedDataOnEnd = response.getJSONObject("requested_data_on_end");
-                } catch (JSONException je) {
-                    // Replace with default values to prevent crash
-                    jobNumber = "";
-                    colour = "#ffffff";
-                    requestedDataOnEnd = new JSONObject();
-                }
-                Log.d(TAG, "State: setting, Job:" + jobNumber);
-                Intent settingIntent = new Intent(getApplicationContext(), SettingInProgressActivity.class);
-                // The activity shows the job number on the action bar
-                settingIntent.putExtra("jobNumber", jobNumber);
-                // The activity's background changes depending on the activity
-                settingIntent.putExtra("colour", colour);
-                // The data that the server wants from the user when ending a job. This will be passed along to the next activity
-                settingIntent.putExtra("requestedDataOnEnd", requestedDataOnEnd.toString());
-                startActivity(settingIntent);
                 break;
 
             default:

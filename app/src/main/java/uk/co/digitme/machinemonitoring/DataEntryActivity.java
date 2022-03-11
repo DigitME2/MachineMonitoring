@@ -1,17 +1,33 @@
 package uk.co.digitme.machinemonitoring;
 
+import android.app.Dialog;
+import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -21,6 +37,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.Iterator;
 
 import uk.co.digitme.machinemonitoring.Helpers.CustomNumpadView;
@@ -38,6 +55,9 @@ import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
 public class DataEntryActivity extends LoggedInActivity {
 
     private final String TAG = "DataEntryActivity";
+    public final static String TITLE_KEY = "title";
+    public final static String TYPE_KEY = "type";
+    public final static String AUTOFILL_KEY = "autofill";
 
     DbHelper dbHelper;
     EditText[] editTexts;
@@ -45,8 +65,12 @@ public class DataEntryActivity extends LoggedInActivity {
     Button sendButton;
     JSONObject requestedData;
     String[] requestedDataKeys;
-    String[] requestedDataTitles;
+    JSONObject[] requestedDataItems;
     JSONObject requestedDataAutoFill;
+
+    // To display the current time in the edittext as default
+    BroadcastReceiver _broadcastReceiver;
+    private final SimpleDateFormat _sdfWatchTime = new SimpleDateFormat("HH:mm");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +94,7 @@ public class DataEntryActivity extends LoggedInActivity {
             e.printStackTrace();
             Log.e(TAG, e.toString());
         }
-        requestedDataTitles = new String[requestedData.length()];
+        requestedDataItems = new JSONObject[requestedData.length()];
         requestedDataKeys = new String[requestedData.length()];
 
         // Get any autofill data sent by the server
@@ -94,7 +118,7 @@ public class DataEntryActivity extends LoggedInActivity {
             String key = iterator.next();
             requestedDataKeys[i] = key;
             try {
-                requestedDataTitles[i] = requestedData.get(key).toString();
+                requestedDataItems[i] = (JSONObject) requestedData.get(key);
             } catch (JSONException e) {
                 e.printStackTrace();
                 Log.e(TAG, e.toString());
@@ -105,26 +129,83 @@ public class DataEntryActivity extends LoggedInActivity {
         parentLayout = findViewById(R.id.data_entry_parent);
         ViewGroup viewGroup = parentLayout;
         editTexts = new EditText[requestedData.length()];
-        boolean numericalInput = getIntent().getBooleanExtra("numericalInput", false);
+        boolean allNumericalInput = true;
         for (int i = 0; i < requestedData.length(); i++) {
+            String title;
+            String inputType;
+            String autofill;
             LayoutInflater inflater = LayoutInflater.from(this);
             LinearLayout newRow = (LinearLayout) inflater.inflate(R.layout.data_input_item, viewGroup, false);
             parentLayout.addView(newRow);
-            editTexts[i] = newRow.findViewById(R.id.data_item_edit_text);
+            final EditText editText = newRow.findViewById(R.id.data_item_edit_text);
             TextView tv = newRow.findViewById(R.id.data_item_title_textview);
-            tv.setText(requestedDataTitles[i]);
-            if (numericalInput) {
-                editTexts[i].setShowSoftInputOnFocus(false);
+            try {
+                title = requestedDataItems[i].getString(TITLE_KEY);
+                autofill = requestedDataItems[i].getString(AUTOFILL_KEY);
+                inputType = requestedDataItems[i].getString(TYPE_KEY);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.e(TAG, e.toString());
+                continue;
             }
-            // Auto fill the edit text if a value has been given
-            if (requestedDataAutoFill.has(requestedDataKeys[i])){
-                try {
-                    editTexts[i].setText(requestedDataAutoFill.getString(requestedDataKeys[i]));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Log.e(TAG, e.toString());
-                }
+
+            tv.setText(title);
+            switch (inputType) {
+                case "text":
+                    if (!autofill.equals("")) {
+                        editText.setText(autofill);
+                    }
+                    allNumericalInput = false;
+                    break;
+
+                case "number":
+                    editText.setText(autofill);
+                    editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    break;
+
+                case "time":
+                    editText.setShowSoftInputOnFocus(false);
+                    editText.setFocusable(false);
+                    if (autofill.equals("current")) {
+                        // Set a broadcast receiver to update the time to the current time
+                        _broadcastReceiver = new BroadcastReceiver() {
+                            @Override
+                            public void onReceive(Context context, Intent intent) {
+                                if (intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0)
+                                    editText.setText(_sdfWatchTime.format(new Date()));
+                            }
+                        };
+                        registerReceiver(_broadcastReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
+                    }
+                    editText.setOnClickListener(view -> {
+                        try {
+                            // Remove the broadcast receiver to stop the time updates
+                            unregisterReceiver(_broadcastReceiver);
+                        }catch (IllegalArgumentException e) {
+                            // If the receiver is already registered
+                        }
+                        final Calendar c = Calendar.getInstance();
+                        int hour = c.get(Calendar.HOUR_OF_DAY);
+                        int minute = c.get(Calendar.MINUTE);
+                        TimePickerDialog mTimePicker = new TimePickerDialog(DataEntryActivity.this, (timePicker, hourOfDay, minuteOfDay) -> {
+                            String hourString = Integer.toString(hourOfDay);
+                            String minuteString = Integer.toString(minuteOfDay);
+                            if (hourOfDay < 10){
+                                hourString = "0" + hourOfDay;
+                            }
+                            if (minuteOfDay < 10){
+                                minuteString = "0" + minuteOfDay;
+                            }
+                            String timeString = hourString + ":" + minuteString;
+                            editText.setText(timeString);
+                        }, hour, minute, true);
+
+                        mTimePicker.show();
+                    });
+
+                    break;
             }
+            editTexts[i] = editText;
         }
 
         // Create the send button
@@ -133,32 +214,48 @@ public class DataEntryActivity extends LoggedInActivity {
         sendButton = sendLine.findViewById(R.id.send_button);
         sendButton.setText(getIntent().getStringExtra("sendButtonText"));
 
-        // Set the on click listener for the "next" button on the keyboard
-        for (int i = 0; i < requestedData.length(); i++) {
-            // Don't do it for the last edittext
-            if (i != editTexts.length - 1) {
-                editTexts[i].setOnKeyListener(new NextKeyListener(editTexts[i + 1]));
+        // Focus on the top box when activity first opens
+        editTexts[0].requestFocus();
+        sendButton.setOnClickListener(new OnOneOffClickListener() {
+            @Override
+            public void onSingleClick(View view) {
+                send();
             }
-            // Set the key listener for the last edittext, so that the next button sends the data
-            editTexts[editTexts.length - 1].setOnKeyListener(new NextKeyListener(sendButton));
-            // Focus on the top box when activity first opens
-            editTexts[0].requestFocus();
+        });
+        //Set up the custom keyboard, if requested
+        if (allNumericalInput) {
+            CustomNumpadView cnv = findViewById(R.id.keyboard_view);
+            cnv.setActionListenerActivity(this);
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+            for (int i = 0; i < requestedData.length(); i++) {
+                editTexts[i].setShowSoftInputOnFocus(false);
+            }
+        } else{
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+        }
+    }
 
-            // Clicking the Save button ends the activity and returns the data in the boxes
-            sendButton.setOnClickListener(new OnOneOffClickListener() {
-                @Override
-                public void onSingleClick(View view) {
-                    send();
-                }
-            });
 
-            //Set up the custom keyboard, if requested
-            if (numericalInput) {
-                CustomNumpadView cnv = findViewById(R.id.keyboard_view);
-                cnv.setActionListenerActivity(this);
-                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    @Override
+    protected void onResume() {
+        // Check the requestedData to see if any edittexts need the current time updating
+        for (int i = 0; i < requestedData.length(); i++) {
+            String inputType;
+            String autofill;
+            try {
+                autofill = requestedDataItems[i].getString(AUTOFILL_KEY);
+                inputType = requestedDataItems[i].getString(TYPE_KEY);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.e(TAG, e.toString());
+                continue;
+            }
+            if (inputType.equals("time") && autofill.equals("current")){
+                editTexts[i].setText(_sdfWatchTime.format(new Date()));
             }
         }
+        super.onResume();
     }
 
 

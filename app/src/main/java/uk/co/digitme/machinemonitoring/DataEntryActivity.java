@@ -39,6 +39,7 @@ import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
 
 import uk.co.digitme.machinemonitoring.Helpers.CustomNumpadView;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
@@ -70,7 +71,7 @@ public class DataEntryActivity extends LoggedInActivity {
 
     // To display the current time in the edittext as default
     BroadcastReceiver _broadcastReceiver;
-    private final SimpleDateFormat _sdfWatchTime = new SimpleDateFormat("HH:mm");
+    private final SimpleDateFormat _sdfWatchTime = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +139,8 @@ public class DataEntryActivity extends LoggedInActivity {
             LinearLayout newRow = (LinearLayout) inflater.inflate(R.layout.data_input_item, viewGroup, false);
             parentLayout.addView(newRow);
             final EditText editText = newRow.findViewById(R.id.data_item_edit_text);
+            // Need to set this to fix a bug causing all edit texts to update with the time
+            editText.setSaveEnabled(false);
             TextView tv = newRow.findViewById(R.id.data_item_title_textview);
             try {
                 title = requestedDataItems[i].getString(TITLE_KEY);
@@ -254,6 +257,7 @@ public class DataEntryActivity extends LoggedInActivity {
             if (inputType.equals("time") && autofill.equals("current")){
                 editTexts[i].setText(_sdfWatchTime.format(new Date()));
             }
+//            editTexts[i].setText(i+"");
         }
         super.onResume();
     }

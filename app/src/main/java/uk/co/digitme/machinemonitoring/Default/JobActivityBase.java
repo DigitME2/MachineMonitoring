@@ -35,9 +35,9 @@ import uk.co.digitme.machinemonitoring.R;
 
 
 /**
- * The activity shown when the server reports this device's job is in progress
+ * The base activity for the job in progress screen
  */
-public class JobInProgressActivity extends LoggedInActivity {
+public abstract class JobActivityBase extends LoggedInActivity {
 
     final String TAG = "JobInProgressActivity";
     public static final int JOB_END_DATA_REQUEST_CODE = 9002;
@@ -47,7 +47,7 @@ public class JobInProgressActivity extends LoggedInActivity {
 
     String jobNumber;
 
-    DbHelper dbHelper;
+    public DbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,6 @@ public class JobInProgressActivity extends LoggedInActivity {
         dbHelper = new DbHelper(getApplicationContext());
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_job_in_progress);
 
         // Change the colour of the background. The colour is sent by the server
         String colour = getIntent().getStringExtra("colour");

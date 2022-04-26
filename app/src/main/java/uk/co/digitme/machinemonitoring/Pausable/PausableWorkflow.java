@@ -66,7 +66,7 @@ public class PausableWorkflow extends Workflow {
         currentActivity = serverResponse.getString("current_activity");
         requestedDataOnEnd = serverResponse.getJSONObject("requested_data_on_end");
 
-        Intent activeJobIntent = new Intent(context, JobInProgressActivity.class);
+        Intent activeJobIntent = new Intent(context, PausableJobActivity.class);
         // Send the current activity to set the spinner on
         activeJobIntent.putExtra("currentActivity", currentActivity);
         // The activity shows the job number on the action bar

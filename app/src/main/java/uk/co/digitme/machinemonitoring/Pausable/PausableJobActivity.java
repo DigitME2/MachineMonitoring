@@ -32,7 +32,7 @@ import uk.co.digitme.machinemonitoring.R;
 /**
  * The activity shown when the server reports this device's job is in progress
  */
-public class JobInProgressActivity extends LoggedInActivity {
+public class PausableJobActivity extends LoggedInActivity {
 
     final String TAG = "JobInProgressActivity";
     public static final int JOB_END_DATA_REQUEST_CODE = 9002;

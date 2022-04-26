@@ -21,16 +21,12 @@ import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 import uk.co.digitme.machinemonitoring.Default.Workflow;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
-import uk.co.digitme.machinemonitoring.Pausable.JobPausedActivity;
 import uk.co.digitme.machinemonitoring.Pausable.PausableWorkflow;
 import uk.co.digitme.machinemonitoring.RunningTotal.RunningTotalWorkflow;
 
@@ -170,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
                 case "running_total":
                     workflow = new RunningTotalWorkflow(getApplicationContext(), response);
+                    break;
 
                 default:
                     showError(String.format("App version not compatible with workflow type %s", workflowType));

@@ -53,7 +53,6 @@ public class Workflow {
                 break;
 
             case STATE_JOB_ACTIVE:
-                // There is an active job, running on this device/machine, launch the job in progress activity
                 intent = activeJobFlow();
                 break;
 
@@ -117,7 +116,7 @@ public class Workflow {
         requestedDataOnEnd = serverResponse.getJSONObject("requested_data_on_end");
         codes = parseJsonList(serverResponse, "activity_codes");
 
-        Intent activeJobIntent = new Intent(context, JobInProgressActivity.class);
+        Intent activeJobIntent = new Intent(context, DefaultJobActivity.class);
         // The activity requires possible downtime reasons to populate a dropdown
         activeJobIntent.putExtra("activityCodes", codes);
         // Send the current activity to set the spinner on

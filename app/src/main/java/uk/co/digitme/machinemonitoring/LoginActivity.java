@@ -1,4 +1,4 @@
-package uk.co.digitme.machinemonitoring.Default;
+package uk.co.digitme.machinemonitoring;
 
 import android.content.Context;
 import android.os.Bundle;

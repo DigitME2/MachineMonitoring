@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import uk.co.digitme.machinemonitoring.DataEntryActivity;
+import uk.co.digitme.machinemonitoring.LoginActivity;
 
 public class Workflow {
 

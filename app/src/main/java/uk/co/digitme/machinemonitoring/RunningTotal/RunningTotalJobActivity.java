@@ -1,18 +1,12 @@
 package uk.co.digitme.machinemonitoring.RunningTotal;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.NumberPicker;
-import android.widget.Spinner;
-import android.widget.Toast;
 
 import uk.co.digitme.machinemonitoring.DataEntryActivity;
-import uk.co.digitme.machinemonitoring.Default.JobActivityBase;
+import uk.co.digitme.machinemonitoring.JobActivityBase;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
 import uk.co.digitme.machinemonitoring.R;
 

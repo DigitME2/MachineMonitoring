@@ -2,7 +2,7 @@ package uk.co.digitme.machinemonitoring.Default;
 
 import android.os.Bundle;
 
-import uk.co.digitme.machinemonitoring.Helpers.LoggedInActivity;
+import uk.co.digitme.machinemonitoring.JobActivityBase;
 import uk.co.digitme.machinemonitoring.R;
 
 

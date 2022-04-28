@@ -15,7 +15,7 @@ import uk.co.digitme.machinemonitoring.R;
  * The activity shown when the server reports this device's job is in progress
  */
 public class RunningTotalJobActivity extends JobActivityBase {
-    private static final int JOB_UPDATE_REQUEST_CODE = 9003;
+    public static final int JOB_UPDATE_REQUEST_CODE = 9003;
     final String TAG = "RunningTotalJobActivity";
 
     Button mUpdateTotalButton;

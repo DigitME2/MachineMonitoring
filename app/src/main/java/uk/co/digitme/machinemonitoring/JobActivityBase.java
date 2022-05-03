@@ -13,12 +13,11 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -27,11 +26,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import uk.co.digitme.machinemonitoring.DataEntryActivity;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.Helpers.LoggedInActivity;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
-import uk.co.digitme.machinemonitoring.R;
 
 
 /**
@@ -44,6 +41,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
     Spinner activityCodeSpinner;
     Button mEndJobButton;
+    ActivityResultLauncher<Intent> endJobResult;
 
     String jobNumber;
 
@@ -77,6 +75,12 @@ public abstract class JobActivityBase extends LoggedInActivity {
                 endJob();
             }
         });
+
+        endJobResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    finish();
+                });
 
 
         // Get the list of downtime reasons (Sent by the server) and populate the spinner
@@ -127,18 +131,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
         // The text shown on the send button
         endJobInfoIntent.putExtra("sendButtonText", "End");
 
-        startActivityForResult(endJobInfoIntent, JOB_END_DATA_REQUEST_CODE);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // When the job end information returns, send the info to the server to end the job
-        if (requestCode == JOB_END_DATA_REQUEST_CODE) {
-            if (resultCode == RESULT_OK){
-                finish();
-            }
-        }
+        endJobResult.launch(endJobInfoIntent);
     }
 
     /**
@@ -159,35 +152,29 @@ public abstract class JobActivityBase extends LoggedInActivity {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                     url,
                     jsonBody,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            boolean success;
-                            try {
-                                // Get the state from the server response
-                                success = response.getBoolean("success");
-                                Log.d(TAG, "Server response: " + response.toString());
-                                if (success){
-                                    // Change the colour of the background. The colour is sent by the server
-                                    String newColour = response.getString("colour");
-                                    View rootView = getWindow().getDecorView().getRootView();
-                                    rootView.setBackgroundColor(Color.parseColor(newColour));
-                                    // Set the colour of the action bar to match the background
-                                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(newColour)));
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Log.v(TAG, "Failed parsing server response: " + response);
+                    response -> {
+                        boolean success;
+                        try {
+                            // Get the state from the server response
+                            success = response.getBoolean("success");
+                            Log.d(TAG, "Server response: " + response.toString());
+                            if (success){
+                                // Change the colour of the background. The colour is sent by the server
+                                String newColour = response.getString("colour");
+                                View rootView = getWindow().getDecorView().getRootView();
+                                rootView.setBackgroundColor(Color.parseColor(newColour));
+                                // Set the colour of the action bar to match the background
+                                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(newColour)));
                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.v(TAG, "Failed parsing server response: " + response);
                         }
                     },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.v("ErrorListener", String.valueOf(error));
-                            Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
-                            finish();
-                        }
+                    error -> {
+                        Log.v("ErrorListener", String.valueOf(error));
+                        Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
+                        finish();
                     });
 
             queue.add(jsonObjectRequest);

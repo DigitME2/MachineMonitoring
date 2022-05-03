@@ -4,10 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 import uk.co.digitme.machinemonitoring.DataEntryActivity;
-import uk.co.digitme.machinemonitoring.JobActivityBase;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
+import uk.co.digitme.machinemonitoring.JobActivityBase;
 import uk.co.digitme.machinemonitoring.R;
 
 
@@ -19,6 +23,7 @@ public class RunningTotalJobActivity extends JobActivityBase {
     final String TAG = "RunningTotalJobActivity";
 
     Button mUpdateTotalButton;
+    ActivityResultLauncher<Intent> updateTotalResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +38,28 @@ public class RunningTotalJobActivity extends JobActivityBase {
             }
         });
 
+        int currentQuantity = getIntent().getIntExtra("currentQuantity", 0);
+        String buttonText = getResources().getString(R.string.update_total_btn);
+        mUpdateTotalButton.setText(buttonText + Integer.toString(currentQuantity));
+
+        updateTotalResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    finish();
+                });
+
     }
-    
+
+
+    protected void showCurrentTotal(int total){
+
+    }
     
     
 
     protected void updateTotal() {
 //        todo finish, need to write server side mostly to request the correct info
+
         Intent updateTotalIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
         updateTotalIntent.putExtra("requestCode", JOB_UPDATE_REQUEST_CODE);
         updateTotalIntent.putExtra("url", "/android-update-quantity");
@@ -49,6 +69,9 @@ public class RunningTotalJobActivity extends JobActivityBase {
         // The text shown on the send button
         updateTotalIntent.putExtra("sendButtonText", "End");
 
-        startActivityForResult(updateTotalIntent, JOB_UPDATE_REQUEST_CODE);
+        updateTotalResult.launch(updateTotalIntent);
     }
+
+
+
 }

@@ -3,17 +3,23 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/layout/activity_job_in_progress.xml" value="0.3734375" />
         <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/layout/activity_main.xml" value="0.39010416666666664" />
         <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/layout/data_input_item.xml" value="0.3880208333333333" />
         <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/layout/numerical_data_input_form.xml" value="0.31354166666666666" />
-        <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/layout/running_total_activity_job_in_progress.xml" value="0.3734375" />
-        <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/layout/running_total_update_total.xml" value="0.3734375" />
         <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/mipmap-anydpi-v26/graphscreenshot.xml" value="0.39" />
+        <entry key="app/src/main/res/layout/activity_job_in_progress.xml" value="0.4171195652173913" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.4320652173913043" />
+        <entry key="app/src/main/res/layout/dialog_number_picker.xml" value="0.29739583333333336" />
+        <entry key="app/src/main/res/layout/numerical_data_input_form.xml" value="0.23333333333333334" />
+        <entry key="app/src/main/res/layout/pausable_activity_job_in_progress.xml" value="0.3" />
+        <entry key="app/src/main/res/layout/pausable_activity_job_paused.xml" value="0.3" />
+        <entry key="app/src/main/res/layout/running_total_activity_job_in_progress.xml" value="0.3" />
+        <entry key="app/src/main/res/layout/running_total_update_total.xml" value="0.3" />
+        <entry key="app/src/main/res/layout/spinner_item.xml" value="0.4320652173913043" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

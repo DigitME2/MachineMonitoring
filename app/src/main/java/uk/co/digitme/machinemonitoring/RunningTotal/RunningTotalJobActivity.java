@@ -1,13 +1,26 @@
 package uk.co.digitme.machinemonitoring.RunningTotal;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import javax.security.auth.callback.Callback;
 
 import uk.co.digitme.machinemonitoring.DataEntryActivity;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
@@ -40,7 +53,7 @@ public class RunningTotalJobActivity extends JobActivityBase {
 
         int currentQuantity = getIntent().getIntExtra("currentQuantity", 0);
         String buttonText = getResources().getString(R.string.update_total_btn);
-        mUpdateTotalButton.setText(buttonText + Integer.toString(currentQuantity));
+        mUpdateTotalButton.setText(buttonText + currentQuantity);
 
         updateTotalResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -48,18 +61,46 @@ public class RunningTotalJobActivity extends JobActivityBase {
                     finish();
                 });
 
+        long lastUpdateTimestamp = (long) getIntent().getFloatExtra("lastUpdate", 0);
+        long currentTimestamp = System.currentTimeMillis() / 1000;
+        Log.v("ServerResponseListener", Long.toString(currentTimestamp));
+        Log.v("ServerResponseListener", Long.toString(lastUpdateTimestamp));
+
+        Handler h = new Handler();
+        Runnable flashUpdateBox = new Runnable() {
+            boolean alternate = true;
+            @Override
+            public void run() {
+                if (alternate) {
+                    mUpdateTotalButton.setBackgroundColor(Color.RED);
+                } else {
+                    mUpdateTotalButton.setBackgroundColor(Color.GREEN);
+                }
+                alternate = !alternate;
+                h.postDelayed(this, 1000);
+            }
+        };
+//        TODO This part isnt working right. May be server side, dunno
+        long secondsSinceUpdate = currentTimestamp - lastUpdateTimestamp;
+        long updateFrequencySeconds = 10;
+        long milliSecondsTillUpdateRequest = (updateFrequencySeconds - secondsSinceUpdate) * 1000;
+        new CountDownTimer(milliSecondsTillUpdateRequest, 10) {
+
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            public void onFinish() {
+                flashUpdateBox.run();
+                mUpdateTotalButton.setText("Update required\nCurrent quantity: " + currentQuantity);
+            }
+        }.start();
+
+
     }
 
-
-    protected void showCurrentTotal(int total){
-
-    }
-    
-    
 
     protected void updateTotal() {
-//        todo finish, need to write server side mostly to request the correct info
-
         Intent updateTotalIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
         updateTotalIntent.putExtra("requestCode", JOB_UPDATE_REQUEST_CODE);
         updateTotalIntent.putExtra("url", "/android-update-quantity");
@@ -67,7 +108,7 @@ public class RunningTotalJobActivity extends JobActivityBase {
         // Pass the requested data from the initial intent
         updateTotalIntent.putExtra("requestedData", getIntent().getStringExtra("requestedDataOnEnd"));
         // The text shown on the send button
-        updateTotalIntent.putExtra("sendButtonText", "End");
+        updateTotalIntent.putExtra("sendButtonText", "Update Total");
 
         updateTotalResult.launch(updateTotalIntent);
     }

@@ -39,7 +39,7 @@ public class EndActivityResponseListener implements Response.Listener<JSONObject
                 // If success is false, print the reason to the user
                 Toast.makeText(mActivity.getApplicationContext(),
                         response.getString("reason"),
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_LONG).show();
                 mActivity.setResult(RESULT_OK);
                 mActivity.finish();
             }

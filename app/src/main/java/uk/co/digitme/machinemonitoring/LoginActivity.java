@@ -133,13 +133,10 @@ public class LoginActivity extends AppCompatActivity {
                     url,
                     jsonBody,
                     new EndActivityResponseListener(this),
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.v("ErrorListener", String.valueOf(error));
-                            Toast.makeText(context, String.valueOf(error), Toast.LENGTH_LONG).show();
-                            finish();
-                        }
+                    error -> {
+                        Log.v("ErrorListener", String.valueOf(error));
+                        Toast.makeText(context, String.valueOf(error), Toast.LENGTH_LONG).show();
+                        finish();
                     });
 
             queue.add(jsonObjectRequest);

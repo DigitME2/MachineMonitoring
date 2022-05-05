@@ -5,22 +5,15 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import javax.security.auth.callback.Callback;
 
 import uk.co.digitme.machinemonitoring.DataEntryActivity;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
@@ -37,6 +30,10 @@ public class RunningTotalJobActivity extends JobActivityBase {
 
     Button mUpdateTotalButton;
     ActivityResultLauncher<Intent> updateTotalResult;
+    Runnable flashUpdateBox;
+    int currentQuantity;
+
+    long lastUpdateTimestampSeconds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,48 +48,45 @@ public class RunningTotalJobActivity extends JobActivityBase {
             }
         });
 
-        int currentQuantity = getIntent().getIntExtra("currentQuantity", 0);
-        String buttonText = getResources().getString(R.string.update_total_btn);
-        mUpdateTotalButton.setText(buttonText + currentQuantity);
+        currentQuantity = getIntent().getIntExtra("currentQuantity", 0);
+        String buttonText = getResources().getString(R.string.update_total_btn) + currentQuantity;
+        mUpdateTotalButton.setText(buttonText);
 
         updateTotalResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    finish();
-                });
+                result -> finish());
 
-        long lastUpdateTimestamp = (long) getIntent().getFloatExtra("lastUpdate", 0);
-        long currentTimestamp = System.currentTimeMillis() / 1000;
-        Log.v("ServerResponseListener", Long.toString(currentTimestamp));
-        Log.v("ServerResponseListener", Long.toString(lastUpdateTimestamp));
 
         Handler h = new Handler();
-        Runnable flashUpdateBox = new Runnable() {
+        flashUpdateBox = new Runnable() {
             boolean alternate = true;
             @Override
             public void run() {
                 if (alternate) {
                     mUpdateTotalButton.setBackgroundColor(Color.RED);
                 } else {
-                    mUpdateTotalButton.setBackgroundColor(Color.GREEN);
+                    mUpdateTotalButton.setBackgroundColor(Color.LTGRAY);
                 }
                 alternate = !alternate;
                 h.postDelayed(this, 1000);
             }
         };
-//        TODO This part isnt working right. May be server side, dunno
-        long secondsSinceUpdate = currentTimestamp - lastUpdateTimestamp;
-        long updateFrequencySeconds = 10;
+        lastUpdateTimestampSeconds = (long) getIntent().getDoubleExtra("lastUpdate", 0);
+        int updateFrequencySeconds = getIntent().getIntExtra("updateFrequency", 3600);
+        long currentTimestampSeconds = System.currentTimeMillis() / 1000;
+
+        long secondsSinceUpdate = currentTimestampSeconds - lastUpdateTimestampSeconds;
         long milliSecondsTillUpdateRequest = (updateFrequencySeconds - secondsSinceUpdate) * 1000;
-        new CountDownTimer(milliSecondsTillUpdateRequest, 10) {
+        new CountDownTimer(milliSecondsTillUpdateRequest, 1000) {
 
             public void onTick(long millisUntilFinished) {
-
+                Log.d(TAG, "countdown: " + millisUntilFinished);
             }
 
             public void onFinish() {
                 flashUpdateBox.run();
-                mUpdateTotalButton.setText("Update required\nCurrent quantity: " + currentQuantity);
+                String updateButtonText = "Update required\nCurrent quantity: " + currentQuantity;
+                mUpdateTotalButton.setText(updateButtonText);
             }
         }.start();
 
@@ -105,6 +99,9 @@ public class RunningTotalJobActivity extends JobActivityBase {
         updateTotalIntent.putExtra("requestCode", JOB_UPDATE_REQUEST_CODE);
         updateTotalIntent.putExtra("url", "/android-update-quantity");
         updateTotalIntent.putExtra("numericalInput", true);
+        SimpleDateFormat formatter = new SimpleDateFormat("kk:mm");
+        String timeString = formatter.format(new Date(lastUpdateTimestampSeconds*1000));
+        updateTotalIntent.putExtra("instructionText", "Enter the quantity produced since " + timeString);
         // Pass the requested data from the initial intent
         updateTotalIntent.putExtra("requestedData", getIntent().getStringExtra("requestedDataOnEnd"));
         // The text shown on the send button

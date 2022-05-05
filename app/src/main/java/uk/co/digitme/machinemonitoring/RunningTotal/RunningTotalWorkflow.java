@@ -50,7 +50,8 @@ public class RunningTotalWorkflow extends Workflow {
         Intent defaultIntent = super.activeJobFlow();
         Intent intent = new Intent(super.context, RunningTotalJobActivity.class);
         intent.putExtras(defaultIntent);
-        intent.putExtra("lastUpdate", Float.parseFloat(serverResponse.getString("last_update")));
+        intent.putExtra("updateFrequency", Integer.parseInt(serverResponse.getString("update_frequency")));
+        intent.putExtra("lastUpdate", Double.parseDouble(serverResponse.getString("last_update")));
         intent.putExtra("currentQuantity", serverResponse.getInt("current_quantity"));
         return intent;
     }

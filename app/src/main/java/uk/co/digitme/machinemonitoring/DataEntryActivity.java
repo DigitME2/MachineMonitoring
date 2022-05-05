@@ -1,10 +1,8 @@
 package uk.co.digitme.machinemonitoring;
 
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.icu.text.SimpleDateFormat;
@@ -12,7 +10,6 @@ import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,11 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -61,6 +54,7 @@ public class DataEntryActivity extends LoggedInActivity {
     public final static String AUTOFILL_KEY = "autofill";
 
     DbHelper dbHelper;
+    TextView instructionsTV;
     EditText[] editTexts;
     LinearLayout parentLayout;
     Button sendButton;
@@ -80,7 +74,7 @@ public class DataEntryActivity extends LoggedInActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         dbHelper = new DbHelper(getApplicationContext());
-        setContentView(R.layout.numerical_data_input_form);
+        setContentView(R.layout.data_entry_activity);
 
         // Get the data that has been requested to be collected from the user
         String requestedDataS = getIntent().getStringExtra("requestedData");
@@ -111,7 +105,9 @@ public class DataEntryActivity extends LoggedInActivity {
             e.printStackTrace();
             Log.e(TAG, e.toString());
         }
-
+        String instructions = getIntent().getStringExtra("instructionText");
+        instructionsTV = findViewById(R.id.data_entry_instructions);
+        instructionsTV.setText(instructions);
 
         // Iterate through the JSON object and add the data to arrays
         Iterator<String> iterator = requestedData.keys();

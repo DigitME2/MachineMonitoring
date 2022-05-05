@@ -1,23 +1,10 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context=".RunningTotal.RunningTotalJobActivity">
-
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".RunningTotal.RunningTotalJobActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical">
-
-<!--    <TextView-->
-<!--        android:id="@+id/total"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="@dimen/job_action_button_height_rt"-->
-<!--        android:layout_margin="@dimen/job_action_button_margin_rt"-->
-<!--        android:fontFamily="@string/button_font_family"-->
-<!--        android:textSize="@dimen/job_action_button_text_size_rt" />-->
 
     <Button
         android:id="@+id/update_total_button"
@@ -45,5 +32,3 @@ tools:context=".RunningTotal.RunningTotalJobActivity">
         android:text="@string/action_end"
         android:textSize="@dimen/job_action_button_text_size_rt" />
 </LinearLayout>
-
-</FrameLayout>

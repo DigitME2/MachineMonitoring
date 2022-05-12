@@ -107,6 +107,9 @@ public class DataEntryActivity extends LoggedInActivity {
         }
         String instructions = getIntent().getStringExtra("instructionText");
         instructionsTV = findViewById(R.id.data_entry_instructions);
+        if (instructionsTV.length() < 1){
+            instructionsTV.setVisibility(View.GONE);
+        }
         instructionsTV.setText(instructions);
 
         // Iterate through the JSON object and add the data to arrays

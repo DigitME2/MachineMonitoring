@@ -1,8 +1,10 @@
 package uk.co.digitme.machinemonitoring;
 
+import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.icu.text.SimpleDateFormat;
@@ -27,6 +29,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,6 +55,7 @@ public class DataEntryActivity extends LoggedInActivity {
     public final static String TITLE_KEY = "title";
     public final static String TYPE_KEY = "type";
     public final static String AUTOFILL_KEY = "autofill";
+    public final static String VALIDATION_KEY = "validation";
 
     DbHelper dbHelper;
     TextView instructionsTV;
@@ -150,7 +154,6 @@ public class DataEntryActivity extends LoggedInActivity {
                 Log.e(TAG, e.toString());
                 continue;
             }
-
             tv.setText(title);
             switch (inputType) {
                 case "text":
@@ -221,7 +224,7 @@ public class DataEntryActivity extends LoggedInActivity {
         sendButton.setOnClickListener(new OnOneOffClickListener() {
             @Override
             public void onSingleClick(View view) {
-                send();
+                send(false);
             }
         });
         //Set up the custom keyboard, if requested
@@ -241,7 +244,7 @@ public class DataEntryActivity extends LoggedInActivity {
 
     @Override
     protected void onResume() {
-        // Check the requestedData to see if any edittexts need the current time updating
+        // Check the requestedData to see if any edit texts need the current time updating
         for (int i = 0; i < requestedData.length(); i++) {
             String inputType;
             String autofill;
@@ -256,17 +259,48 @@ public class DataEntryActivity extends LoggedInActivity {
             if (inputType.equals("time") && autofill.equals("current")){
                 editTexts[i].setText(_sdfWatchTime.format(new Date()));
             }
-//            editTexts[i].setText(i+"");
         }
         super.onResume();
     }
 
 
-    private void send() {
+    private void send(Boolean ignoreValidation) {
 
+        JSONArray validEntries = null;
         JSONObject resultJson = new JSONObject();
 
         for (int i = 0; i < requestedData.length(); i++) {
+
+            // Validate the data if necessary
+            if (!ignoreValidation && requestedDataItems[i].has(VALIDATION_KEY)) {
+                try {
+                    // Get the list of values that the entered amount is allowed to be
+                    validEntries = new JSONArray(requestedDataItems[i].getString(VALIDATION_KEY));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                // Create a dialog box if the edit text value is not in the list of valid entries
+                if (validEntries != null && !validEntries.toString().contains(editTexts[i].getText())) {
+                    DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+                        if (which == DialogInterface.BUTTON_POSITIVE){
+                            // Repeat without data validation
+                            send(true);
+                        }
+                    };
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(DataEntryActivity.this);
+                    String dialogText;
+                    try {
+                        dialogText = "WARNING: "  + requestedDataItems[i].getString(TITLE_KEY) + " did not pass data validation. Continue anyway?";
+                    } catch (JSONException e) {
+                        dialogText = "Data looks incorrect. Send anyway?";
+                        e.printStackTrace();
+                    }
+                    builder.setMessage(dialogText).setPositiveButton("Yes", dialogClickListener)
+                            .setNegativeButton("No", dialogClickListener).show();
+                    return;
+                }
+            }
 
             if (TextUtils.isEmpty(editTexts[i].getText().toString())) {
                 Toast.makeText(getApplicationContext(), "All fields are not filled in", Toast.LENGTH_SHORT).show();

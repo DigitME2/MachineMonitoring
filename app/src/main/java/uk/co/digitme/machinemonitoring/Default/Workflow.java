@@ -98,6 +98,12 @@ public class Workflow {
         jobInfoIntent.putExtra("requestedData", requestedData.toString());
         // The text shown on the send button
         jobInfoIntent.putExtra("sendButtonText", "Start New Job");
+        // The action bar text
+        String machineName = serverResponse.getString("machine_name");
+        String userName = serverResponse.getString("user_name");
+        jobInfoIntent.putExtra("actionBarTitle", machineName);
+        jobInfoIntent.putExtra("actionBarSubtitle", userName + " - No Job Active");
+
         Log.d(TAG, "State: no job");
         return jobInfoIntent;
     }

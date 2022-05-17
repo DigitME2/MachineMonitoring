@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -16,18 +15,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 import uk.co.digitme.machinemonitoring.Helpers.CustomNumpadView;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.Helpers.EndActivityResponseListener;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
-import uk.co.digitme.machinemonitoring.R;
 
 /**
  * The login screen to show when a user is not logged in.
@@ -35,7 +33,7 @@ import uk.co.digitme.machinemonitoring.R;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private final String TAG = "LoginActivity";
+    private static final String TAG = "LoginActivity";
 
     TextView mMachineNameText;
     EditText userIdEditText;
@@ -47,13 +45,12 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 
         dbHelper = new DbHelper(getApplicationContext());
         setContentView(R.layout.activity_login);
         String IP = getIntent().getStringExtra("IP");
-        getSupportActionBar().setTitle(IP + " - Log in");
+        Objects.requireNonNull(getSupportActionBar()).setTitle(IP + " - Log in");
 
         //Set up the custom keyboard
         CustomNumpadView cnv = findViewById(R.id.keyboard_view);
@@ -72,26 +69,20 @@ public class LoginActivity extends AppCompatActivity {
         userIdEditText.requestFocus();
 
         //Set the behaviour for the "Next" button to tab through edittexts
-        userIdEditText.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == 66) {
-                    pinCodeEditText.requestFocus();
-                }
-                return false;
+        userIdEditText.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == 66) {
+                pinCodeEditText.requestFocus();
             }
+            return false;
         });
-        pinCodeEditText.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == 66) {
-                    // Prevent this from being clicked again
-                    pinCodeEditText.setOnKeyListener(null);
-                    // Send the post request to login the user
-                    logIn();
-                }
-                return false;
+        pinCodeEditText.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == 66) {
+                // Prevent this from being clicked again
+                pinCodeEditText.setOnKeyListener(null);
+                // Send the post request to login the user
+                logIn();
             }
+            return false;
         });
 
         // Prevent the default keyboard from showing

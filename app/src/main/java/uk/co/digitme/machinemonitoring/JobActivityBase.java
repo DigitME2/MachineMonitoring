@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.ActionBar;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -41,7 +42,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
     Spinner activityCodeSpinner;
     Button mEndJobButton;
-    ActivityResultLauncher<Intent> endJobResult;
+    public ActivityResultLauncher<Intent> endJobResult;
 
     String jobNumber;
 
@@ -53,6 +54,8 @@ public abstract class JobActivityBase extends LoggedInActivity {
         dbHelper = new DbHelper(getApplicationContext());
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Change the colour of the background. The colour is sent by the server
         String colour = getIntent().getStringExtra("colour");
@@ -61,14 +64,19 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
         // Set the action bar to read the job number
         jobNumber = getIntent().getStringExtra("jobNumber");
-        Log.v(TAG, "Job number: " + jobNumber);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("Job in progress: " + jobNumber);
-        // Set the colour of the action bar to match the background
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(colour)));
+        String actionBarTitle = "Job in Progress";
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            // Set the colour of the action bar to match the background
+            ab.setBackgroundDrawable(new ColorDrawable(Color.parseColor(colour)));
+            ab.setTitle(actionBarTitle);
+            if (jobNumber != null) {
+                ab.setSubtitle(jobNumber);
+            }
+        }
 
-        activityCodeSpinner = findViewById(R.id.activity_code_spinner);
+        // Set up the end job button
         mEndJobButton = findViewById(R.id.end_job_button);
-
         mEndJobButton.setOnClickListener(new OnOneOffClickListener() {
             @Override
             public void onSingleClick(View view) {
@@ -78,50 +86,51 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
         endJobResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    finish();
-                });
+                result -> finish());
 
 
         // Get the list of downtime reasons (Sent by the server) and populate the spinner
         ArrayList<String> codes = getIntent().getStringArrayListExtra("activityCodes");
         ArrayAdapter<String> activityCodeAdapter;
 
-        if (codes != null) {
-            activityCodeAdapter = new ArrayAdapter<>
-                    (this, R.layout.spinner_item, codes);
-            activityCodeAdapter.setDropDownViewResource(R.layout.spinner_item);
-            activityCodeSpinner.setAdapter(activityCodeAdapter);
-            //Set the spinner to show the current activity code
-            String current_code = getIntent().getStringExtra("currentActivity");
-            activityCodeSpinner.setSelection(codes.indexOf(current_code));
-        }
+        // Set up the spinner for the downtime codes
+        activityCodeSpinner = findViewById(R.id.activity_code_spinner);
+        if (activityCodeSpinner != null) {
+            if (codes != null) {
+                activityCodeAdapter = new ArrayAdapter<>
+                        (this, R.layout.spinner_item, codes);
+                activityCodeAdapter.setDropDownViewResource(R.layout.spinner_item);
+                activityCodeSpinner.setAdapter(activityCodeAdapter);
+                //Set the spinner to show the current activity code
+                String current_code = getIntent().getStringExtra("currentActivity");
+                activityCodeSpinner.setSelection(codes.indexOf(current_code));
+            }
+            // As soon as the reason is changed, tell the server
+            activityCodeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                // Set a count to ignore the first change, which happens during the creation of the activity
+                int count = 0;
 
-
-
-        // As soon as the reason is changed, tell the server
-        activityCodeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            // Set a count to ignore the first change, which happens during the creation of the activity
-            int count=0;
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if (count>0) {
-                    updateActivity();
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    if (count > 0) {
+                        updateActivity();
+                    }
+                    count++;
                 }
-                count++;
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                // Do nothing
-            }
-        });
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+                    // Do nothing
+                }
+            });
+        }
     }
 
 
     /**
      * Launches a data input activity to add additional data and then ends the activity
      */
-    private void endJob(){
+    public void endJob(){
         Intent endJobInfoIntent = new Intent(getApplicationContext(), DataEntryActivity.class);
         endJobInfoIntent.putExtra("requestCode", JOB_END_DATA_REQUEST_CODE);
         endJobInfoIntent.putExtra("url", "/android-end-job");
@@ -157,14 +166,14 @@ public abstract class JobActivityBase extends LoggedInActivity {
                         try {
                             // Get the state from the server response
                             success = response.getBoolean("success");
-                            Log.d(TAG, "Server response: " + response.toString());
+                            Log.d(TAG, "Server response: " + response);
                             if (success){
                                 // Change the colour of the background. The colour is sent by the server
                                 String newColour = response.getString("colour");
                                 View rootView = getWindow().getDecorView().getRootView();
                                 rootView.setBackgroundColor(Color.parseColor(newColour));
                                 // Set the colour of the action bar to match the background
-                                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(newColour)));
+                                Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(newColour)));
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

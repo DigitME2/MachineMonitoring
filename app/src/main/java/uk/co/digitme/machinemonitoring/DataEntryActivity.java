@@ -24,6 +24,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -74,12 +76,25 @@ public class DataEntryActivity extends LoggedInActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Set to full screen
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         dbHelper = new DbHelper(getApplicationContext());
         setContentView(R.layout.data_entry_activity);
 
+        // Set up the action bar
+        String actionBarTitle = getIntent().getStringExtra("actionBarTitle");
+        String actionBarSubtitle = getIntent().getStringExtra("actionBarSubtitle");
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            if (actionBarTitle != null) {
+                ab.setTitle(actionBarTitle);
+            } else {
+                ab.hide();
+            }
+            if (actionBarSubtitle != null) {
+                ab.setSubtitle(actionBarSubtitle);
+            }
+        }
         // Get the data that has been requested to be collected from the user
         String requestedDataS = getIntent().getStringExtra("requestedData");
         if (requestedDataS == null) {
@@ -109,12 +124,16 @@ public class DataEntryActivity extends LoggedInActivity {
             e.printStackTrace();
             Log.e(TAG, e.toString());
         }
+
+        // If given instructions, show them at the top in a textview, otherwise hide the textview
         String instructions = getIntent().getStringExtra("instructionText");
         instructionsTV = findViewById(R.id.data_entry_instructions);
-        if (instructionsTV.length() < 1){
+        if (instructions == null || instructions.length() < 1){
             instructionsTV.setVisibility(View.GONE);
+        } else {
+            instructionsTV.setVisibility(View.VISIBLE);
+            instructionsTV.setText(instructions);
         }
-        instructionsTV.setText(instructions);
 
         // Iterate through the JSON object and add the data to arrays
         Iterator<String> iterator = requestedData.keys();

@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +22,8 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Objects;
 
 import uk.co.digitme.machinemonitoring.Default.Workflow;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
@@ -41,12 +42,6 @@ import uk.co.digitme.machinemonitoring.RunningTotal.RunningTotalWorkflow;
 public class MainActivity extends AppCompatActivity {
 
     public static final String DEFAULT_URL = "http://192.168.0.100";
-
-    public static final int REQUEST_LOGIN = 9000;
-    public static final int REQUEST_START_JOB = 4000;
-    public static final int REQUEST_END_JOB = 4001;
-    public static final int RESULT_NO_JOB = 8001;
-
     public static final String TAG = "MainActivity";
 
     TextView mStatusText;
@@ -59,14 +54,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         dbHelper = new DbHelper(getApplicationContext());
         prefs = getSharedPreferences("uk.samban.machinemonitoring", MODE_PRIVATE);
 
         setContentView(R.layout.activity_main);
-        //TODO Fix the error that shows up when the server can't be found
-        getSupportActionBar().setTitle("");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Connecting to OEE Server...");
 
         // Status text and retry/change server buttons.
         // These will become visible after failing to connect.

@@ -47,12 +47,6 @@ public class SettingsActivity extends AppCompatActivity {
         preferences = getSharedPreferences("preferences", Context.MODE_PRIVATE);
         editor = preferences.edit();
 
-        //Code to change the admin key (admin key is now hardcoded)
-        /*adminNumberEditText = (EditText) findViewById(R.id.admin_clock_number);
-        adminNumberEditText.setText(preferences.getString(ADMIN_CLOCK_NUMBER_KEY,"1992"));*/
-
-
-
         //If the app is not a device owner, disable the lock task switch
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         if (!devicePolicyManager.isDeviceOwnerApp(getApplicationContext().getPackageName())) {
@@ -61,25 +55,19 @@ public class SettingsActivity extends AppCompatActivity {
 
         //Set up the lock task switch
         lockTaskSwitch.setChecked(preferences.getBoolean(LOCK_KEY, false));
-        lockTaskSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                editor.putBoolean(LOCK_KEY, isChecked);
-                editor.apply();
-            }
+        lockTaskSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            editor.putBoolean(LOCK_KEY, isChecked);
+            editor.apply();
         });
 
 
         //Activating task lock sometimes takes a few seconds, so show a progress bar
         saveButton = findViewById(R.id.save_button);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Save the new address and then close
-                dbHelper.saveServerAddress(serverAddressEditText.getText().toString());
+        saveButton.setOnClickListener(v -> {
+            //Save the new address and then close
+            dbHelper.saveServerAddress(serverAddressEditText.getText().toString());
 
-                finish();
-            }
+            finish();
         });
 
 

@@ -15,14 +15,13 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.Helpers.EndActivityResponseListener;
@@ -49,9 +48,6 @@ public class JobPausedActivity extends LoggedInActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbHelper = new DbHelper(getApplicationContext());
-        // Set to fullscreen
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // Stop the screen timeout
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.pausable_activity_job_paused);
@@ -64,7 +60,7 @@ public class JobPausedActivity extends LoggedInActivity {
         // Set the action bar to read the job number
         jobNumber = getIntent().getStringExtra("jobNumber");
         Log.v(TAG, "Job number: " + jobNumber);
-        getSupportActionBar().setTitle("Job in progress: " + jobNumber);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Job in progress: " + jobNumber);
         // Set the colour to match the background
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(colour)));
 
@@ -76,13 +72,12 @@ public class JobPausedActivity extends LoggedInActivity {
             @Override
             public void onSingleClick(View view) {
                 resumeJob();
-
             }
         });
 
         // Get the list of downtime reasons (Sent by the server) and populate the spinner
         ArrayList<String> reasons = getIntent().getStringArrayListExtra("activityCodes");
-        ArrayAdapter<String> downtimeReasonsAdapter = new ArrayAdapter<String>
+        ArrayAdapter<String> downtimeReasonsAdapter = new ArrayAdapter<>
                 (this, R.layout.spinner_item, reasons);
         downtimeReasonsAdapter.setDropDownViewResource(R.layout.spinner_item);
         mDowntimeReasonsSpinner.setAdapter(downtimeReasonsAdapter);
@@ -119,17 +114,15 @@ public class JobPausedActivity extends LoggedInActivity {
                     url,
                     jsonBody,
                     new EndActivityResponseListener(this),
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Log.v("ErrorListener", String.valueOf(error));
-                            Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
-                            finish();
-                        }
+                    error -> {
+                        Log.v("ErrorListener", String.valueOf(error));
+                        Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
+                        finish();
                     });
 
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
+            e.printStackTrace();
             if (e.getMessage() != null) {
                 Log.e(TAG, e.getMessage());
             }

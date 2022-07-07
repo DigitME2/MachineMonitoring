@@ -4,6 +4,7 @@ import static uk.co.digitme.machinemonitoring.MainActivity.TAG;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -110,28 +111,27 @@ public class Workflow {
 
     protected Intent activeJobFlow() throws JSONException {
         // There is an active job, running on this device/machine, launch the job in progress activity
+        int machineId;
         String jobNumber;
-        String colour;
-        String currentActivity;
-        ArrayList<String> codes;
+        int currentActivityCodeId;
+        String activityCodesString;
         JSONObject requestedDataOnEnd;
 
         // Get additional data from the response, to pass to the next activity
+        machineId = serverResponse.getInt("machine_id");
         jobNumber = serverResponse.getString("wo_number");
-        colour = serverResponse.getString("colour");
-        currentActivity = serverResponse.getString("current_activity");
+        currentActivityCodeId = serverResponse.getInt("current_activity_code_id");
         requestedDataOnEnd = serverResponse.getJSONObject("requested_data_on_end");
-        codes = parseJsonList(serverResponse, "activity_codes");
+        activityCodesString = serverResponse.getJSONArray("activity_codes").toString();
 
         Intent activeJobIntent = new Intent(context, DefaultJobActivity.class);
+        activeJobIntent.putExtra("machineId", machineId);
         // The activity requires possible downtime reasons to populate a dropdown
-        activeJobIntent.putExtra("activityCodes", codes);
+        activeJobIntent.putExtra("activityCodes", activityCodesString);
         // Send the current activity to set the spinner on
-        activeJobIntent.putExtra("currentActivity", currentActivity);
+        activeJobIntent.putExtra("currentActivityCodeId", currentActivityCodeId);
         // The activity shows the job number on the action bar
         activeJobIntent.putExtra("jobNumber", jobNumber);
-        // The activity's background changes depending on the activity
-        activeJobIntent.putExtra("colour", colour);
         // The data that the server wants from the user when ending a job. This will be passed along to the next activity
         activeJobIntent.putExtra("requestedDataOnEnd", requestedDataOnEnd.toString());
         Log.d(TAG, "State: job active, Job:" + jobNumber);

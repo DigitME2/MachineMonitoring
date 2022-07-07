@@ -22,11 +22,17 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import tech.gusavila92.websocketclient.WebSocketClient;
+import uk.co.digitme.machinemonitoring.Default.ActivityCode;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.Helpers.LoggedInActivity;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
@@ -45,8 +51,12 @@ public abstract class JobActivityBase extends LoggedInActivity {
     public ActivityResultLauncher<Intent> endJobResult;
 
     String jobNumber;
+    ArrayList<ActivityCode> activityCodes = new ArrayList<>();
+    int machineId = 0;
 
     public DbHelper dbHelper;
+
+    private WebSocketClient webSocketClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +68,9 @@ public abstract class JobActivityBase extends LoggedInActivity {
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Change the colour of the background. The colour is sent by the server
-        String colour = getIntent().getStringExtra("colour");
-        View rootView = getWindow().getDecorView().getRootView();
-        rootView.setBackgroundColor(Color.parseColor(colour));
+//        String colour = getIntent().getStringExtra("colour");
+//        View rootView = getWindow().getDecorView().getRootView();
+//        rootView.setBackgroundColor(Color.parseColor(colour));
 
         // Set the action bar to read the job number
         jobNumber = getIntent().getStringExtra("jobNumber");
@@ -68,12 +78,13 @@ public abstract class JobActivityBase extends LoggedInActivity {
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             // Set the colour of the action bar to match the background
-            ab.setBackgroundDrawable(new ColorDrawable(Color.parseColor(colour)));
+//            ab.setBackgroundDrawable(new ColorDrawable(Color.parseColor(colour)));
             ab.setTitle(actionBarTitle);
             if (jobNumber != null) {
                 ab.setSubtitle(jobNumber);
             }
         }
+        machineId = getIntent().getIntExtra("machineId", 0);
 
         // Set up the end job button
         mEndJobButton = findViewById(R.id.end_job_button);
@@ -88,22 +99,29 @@ public abstract class JobActivityBase extends LoggedInActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> finish());
 
+        // Parse the activity codes into an array of ActivityCode objects
+        try {
+            JSONArray jsonActivityCodes = new JSONArray(getIntent().getStringExtra("activityCodes"));
+            int len = jsonActivityCodes.length();
+            for (int i = 0; i < len; i++) {
+                JSONObject jso = (JSONObject) jsonActivityCodes.get(i);
+                activityCodes.add(new ActivityCode(jso));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        // Get the list of downtime reasons (Sent by the server) and populate the spinner
-        ArrayList<String> codes = getIntent().getStringArrayListExtra("activityCodes");
-        ArrayAdapter<String> activityCodeAdapter;
+        ArrayAdapter<ActivityCode> activityCodeAdapter = new ArrayAdapter<ActivityCode> (this, R.layout.spinner_item, activityCodes);
 
         // Set up the spinner for the downtime codes
         activityCodeSpinner = findViewById(R.id.activity_code_spinner);
         if (activityCodeSpinner != null) {
-            if (codes != null) {
-                activityCodeAdapter = new ArrayAdapter<>
-                        (this, R.layout.spinner_item, codes);
+            if (activityCodes != null) {
                 activityCodeAdapter.setDropDownViewResource(R.layout.spinner_item);
                 activityCodeSpinner.setAdapter(activityCodeAdapter);
                 //Set the spinner to show the current activity code
-                String current_code = getIntent().getStringExtra("currentActivity");
-                activityCodeSpinner.setSelection(codes.indexOf(current_code));
+                int current_activity_code_id = getIntent().getIntExtra("currentActivityCodeId", 0);
+                setActivityCodeSpinner(current_activity_code_id);
             }
             // As soon as the reason is changed, tell the server
             activityCodeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -112,8 +130,12 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    ActivityCode ac = (ActivityCode) adapterView.getItemAtPosition(i);
                     if (count > 0) {
-                        updateActivity();
+                        View rootView = getWindow().getDecorView().getRootView();
+                        rootView.setBackgroundColor(Color.parseColor(ac.colour));
+                        Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(ac.colour)));
+                        updateActivity(ac.activityCodeId);
                     }
                     count++;
                 }
@@ -123,6 +145,22 @@ public abstract class JobActivityBase extends LoggedInActivity {
                     // Do nothing
                 }
             });
+        }
+
+        createWebSocketClient();
+
+    }
+
+    public void setActivityCodeSpinner(int activityCodeId) {
+        int len = activityCodes.size();
+        for(int i = 0; i < len; i++){
+            ActivityCode ac = activityCodes.get(i);
+            if (ac.activityCodeId == activityCodeId){
+                activityCodeSpinner.setSelection(activityCodes.indexOf(ac));
+                View rootView = getWindow().getDecorView().getRootView();
+                rootView.setBackgroundColor(Color.parseColor(ac.colour));
+                Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(ac.colour)));
+            }
         }
     }
 
@@ -148,7 +186,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
      *
      * Updates the background colour if successful
      */
-    private void updateActivity(){
+    private void updateActivity(int activityCodeId){
 
         // Contact the server to inform of the update
         try {
@@ -156,7 +194,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
             String url = dbHelper.getServerAddress() + "/android-update";
             JSONObject jsonBody = new JSONObject();
 
-            jsonBody.put("selected_activity_code", activityCodeSpinner.getSelectedItem().toString());
+            jsonBody.put("activity_code_id", activityCodeId);
             // Send the request. Don't listen for the response and ignore any failures, this isn't a critical update.
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                     url,
@@ -167,17 +205,13 @@ public abstract class JobActivityBase extends LoggedInActivity {
                             // Get the state from the server response
                             success = response.getBoolean("success");
                             Log.d(TAG, "Server response: " + response);
-                            if (success){
-                                // Change the colour of the background. The colour is sent by the server
-                                String newColour = response.getString("colour");
-                                View rootView = getWindow().getDecorView().getRootView();
-                                rootView.setBackgroundColor(Color.parseColor(newColour));
-                                // Set the colour of the action bar to match the background
-                                Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(newColour)));
+                            if (!success){
+                                finish();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
                             Log.v(TAG, "Failed parsing server response: " + response);
+                            finish();
                         }
                     },
                     error -> {
@@ -194,5 +228,71 @@ public abstract class JobActivityBase extends LoggedInActivity {
                 finish();
             }
         }
+    }
+
+
+
+
+    private void createWebSocketClient() {
+        URI uri;
+        try {
+            uri = new URI("ws://192.168.0.100:80/activity-updates");
+        }
+        catch (URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        webSocketClient = new WebSocketClient(uri) {
+            @Override
+            public void onOpen() {
+                JSONObject machineIdResponse = new JSONObject();
+                try {
+                    machineIdResponse.put("machine_id", machineId);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                webSocketClient.send(machineIdResponse.toString());
+            }
+
+            @Override
+            public void onTextReceived(String message) {
+                System.out.println("onTextReceived");
+                System.out.println(message);
+//                setActivityCodeSpinner(Integer.parseInt(message));
+            }
+
+            @Override
+            public void onBinaryReceived(byte[] data) {
+                System.out.println("onBinaryReceived");
+            }
+
+            @Override
+            public void onPingReceived(byte[] data) {
+                System.out.println("onPingReceived");
+            }
+
+            @Override
+            public void onPongReceived(byte[] data) {
+                System.out.println("onPongReceived");
+            }
+
+            @Override
+            public void onException(Exception e) {
+                System.out.println("onException");
+                System.out.println(e.getMessage());
+            }
+
+            @Override
+            public void onCloseReceived() {
+                System.out.println("onCloseReceived");
+            }
+        };
+
+        webSocketClient.setConnectTimeout(10000);
+        webSocketClient.setReadTimeout(60000);
+        webSocketClient.addHeader("Origin", "http://developer.example.com");
+        webSocketClient.enableAutomaticReconnection(5000);
+        webSocketClient.connect();
     }
 }

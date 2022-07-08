@@ -64,7 +64,6 @@ public class DbHelper extends SQLiteOpenHelper {
             } catch (CursorIndexOutOfBoundsException e) {
                 address = "";
             }
-            Log.d(TAG, "Returning server address: " + address);
             return address;
         }
         return "";

@@ -45,7 +45,6 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
     final String TAG = "JobInProgressActivity";
     public static final int JOB_END_DATA_REQUEST_CODE = 9002;
-
     Spinner activityCodeSpinner;
     Button mEndJobButton;
     public ActivityResultLauncher<Intent> endJobResult;
@@ -67,18 +66,12 @@ public abstract class JobActivityBase extends LoggedInActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // Change the colour of the background. The colour is sent by the server
-//        String colour = getIntent().getStringExtra("colour");
-//        View rootView = getWindow().getDecorView().getRootView();
-//        rootView.setBackgroundColor(Color.parseColor(colour));
 
         // Set the action bar to read the job number
         jobNumber = getIntent().getStringExtra("jobNumber");
         String actionBarTitle = "Job in Progress";
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
-            // Set the colour of the action bar to match the background
-//            ab.setBackgroundDrawable(new ColorDrawable(Color.parseColor(colour)));
             ab.setTitle(actionBarTitle);
             if (jobNumber != null) {
                 ab.setSubtitle(jobNumber);
@@ -111,7 +104,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
             e.printStackTrace();
         }
 
-        ArrayAdapter<ActivityCode> activityCodeAdapter = new ArrayAdapter<ActivityCode> (this, R.layout.spinner_item, activityCodes);
+        ArrayAdapter<ActivityCode> activityCodeAdapter = new ArrayAdapter<> (this, R.layout.spinner_item, activityCodes);
 
         // Set up the spinner for the downtime codes
         activityCodeSpinner = findViewById(R.id.activity_code_spinner);
@@ -146,17 +139,18 @@ public abstract class JobActivityBase extends LoggedInActivity {
                 }
             });
         }
-
         createWebSocketClient();
-
     }
+
+
+
 
     public void setActivityCodeSpinner(int activityCodeId) {
         int len = activityCodes.size();
         for(int i = 0; i < len; i++){
             ActivityCode ac = activityCodes.get(i);
             if (ac.activityCodeId == activityCodeId){
-                activityCodeSpinner.setSelection(activityCodes.indexOf(ac));
+                activityCodeSpinner.post(() -> activityCodeSpinner.setSelection(activityCodes.indexOf(ac)));
                 View rootView = getWindow().getDecorView().getRootView();
                 rootView.setBackgroundColor(Color.parseColor(ac.colour));
                 Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(ac.colour)));
@@ -246,6 +240,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
         webSocketClient = new WebSocketClient(uri) {
             @Override
             public void onOpen() {
+                Log.i(TAG, "websocket connected");
                 JSONObject machineIdResponse = new JSONObject();
                 try {
                     machineIdResponse.put("machine_id", machineId);
@@ -257,42 +252,44 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
             @Override
             public void onTextReceived(String message) {
-                System.out.println("onTextReceived");
-                System.out.println(message);
-//                setActivityCodeSpinner(Integer.parseInt(message));
+                runOnUiThread(() -> {
+                    Log.i(TAG, "websocket message: " + message);
+                    setActivityCodeSpinner(Integer.parseInt(message));
+                });
+
             }
 
             @Override
             public void onBinaryReceived(byte[] data) {
-                System.out.println("onBinaryReceived");
+                Log.i(TAG, "onBinaryReceived");
             }
 
             @Override
             public void onPingReceived(byte[] data) {
-                System.out.println("onPingReceived");
+                Log.v(TAG, "onPingReceived");
             }
 
             @Override
             public void onPongReceived(byte[] data) {
-                System.out.println("onPongReceived");
+                Log.v(TAG, "onPongReceived");
             }
 
             @Override
             public void onException(Exception e) {
-                System.out.println("onException");
-                System.out.println(e.getMessage());
+                Log.e(TAG, "WebSocket Exception");
+                Log.e(TAG, e.getMessage());
             }
 
             @Override
             public void onCloseReceived() {
-                System.out.println("onCloseReceived");
+                Log.w(TAG, "Websocket Closing");
             }
         };
 
         webSocketClient.setConnectTimeout(10000);
         webSocketClient.setReadTimeout(60000);
-        webSocketClient.addHeader("Origin", "http://developer.example.com");
         webSocketClient.enableAutomaticReconnection(5000);
         webSocketClient.connect();
     }
 }
+

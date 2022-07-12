@@ -4,7 +4,6 @@ import static uk.co.digitme.machinemonitoring.MainActivity.TAG;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
 import org.json.JSONArray;

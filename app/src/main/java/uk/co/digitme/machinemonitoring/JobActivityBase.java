@@ -132,7 +132,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
                         View rootView = getWindow().getDecorView().getRootView();
                         rootView.setBackgroundColor(Color.parseColor(ac.colour));
                         Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(ac.colour)));
-                        updateActivity(ac.activityCodeId, updateUrl);
+                        updateActivity(ac.activityCodeId);
                     }
                     count++;
                 }
@@ -188,7 +188,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
      *
      * Updates the background colour if successful
      */
-    public void updateActivity(int activityCodeId, String url){
+    public void updateActivity(int activityCodeId){
 
         // Contact the server to inform of the update
         try {

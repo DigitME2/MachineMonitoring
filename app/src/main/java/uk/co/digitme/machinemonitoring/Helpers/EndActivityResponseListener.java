@@ -19,7 +19,7 @@ import static android.telephony.MbmsDownloadSession.RESULT_CANCELLED;
  */
 public class EndActivityResponseListener implements Response.Listener<JSONObject> {
 
-    private Activity mActivity;
+    private final Activity mActivity;
 
     /**
      * @param activity The activity to close when a successful response is received
@@ -45,7 +45,7 @@ public class EndActivityResponseListener implements Response.Listener<JSONObject
             }
         } catch (JSONException e) {
             Log.v("ServerResponseListener", e.toString());
-            Log.v("ServerResponseListener", "Failed parsing server response: " + response.toString());
+            Log.v("ServerResponseListener", "Failed parsing server response: " + response);
             mActivity.setResult(RESULT_CANCELLED);
             mActivity.finish();
         }

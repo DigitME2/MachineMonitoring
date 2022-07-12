@@ -1,12 +1,7 @@
 package uk.co.digitme.machinemonitoring.Default;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import tech.gusavila92.websocketclient.WebSocketClient;
 import uk.co.digitme.machinemonitoring.JobActivityBase;
 import uk.co.digitme.machinemonitoring.R;
 

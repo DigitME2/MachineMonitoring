@@ -12,6 +12,9 @@ import androidx.annotation.Nullable;
 
 import static uk.co.digitme.machinemonitoring.MainActivity.DEFAULT_URL;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "Database Helper";
@@ -66,7 +69,9 @@ public class DbHelper extends SQLiteOpenHelper {
             }
             return address;
         }
-        return "";
+        else {
+            return "";
+        }
     }
 
     public void saveServerAddress(String address){
@@ -78,5 +83,44 @@ public class DbHelper extends SQLiteOpenHelper {
 
         db.replace("SETTINGS", null ,cv);
         Log.d(TAG, "Saving server address: " + address);
+    }
+
+    public URI getServerURI() throws URISyntaxException {
+        SQLiteDatabase db = getReadableDatabase();
+        String address;
+        URI uri;
+
+        final String SQL_GET_ADDRESS = "SELECT SERVER_ADDRESS FROM SETTINGS WHERE ID=1 Limit 1";
+        //Cursor cursor = db.rawQuery(SQL_GET_ADDRESS, null);
+        //Cursor cursor = db.query("SETTINGS", new String[] {"SERVER_ADDRESS"},
+        //        "ID=1", null, null, null, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM SETTINGS",null);
+        if(cursor.moveToFirst()) {
+            try {
+                address = cursor.getString(cursor.getColumnIndex(COLUMN_SERVER_ADDRESS));
+                cursor.close();
+            } catch (CursorIndexOutOfBoundsException e) {
+                Log.e(TAG, "Failed to get server address");
+                address = "";
+            }
+        } else {
+            Log.e(TAG, "Failed to get server address");
+            address = "";
+        }
+
+        uri = new URI(address);
+        String scheme;
+        String port;
+        if (uri.getScheme().equals("https")){
+            scheme = "wss://";
+        } else {
+            scheme = "ws://";
+        }
+        if (uri.getPort() == -1){
+            port = "";
+        } else {
+            port = ":" + uri.getPort();
+        }
+        return new URI(scheme + uri.getHost() + port + "/activity-updates");
     }
 }

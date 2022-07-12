@@ -20,7 +20,7 @@
 
 i    <Spinner
         style="@style/activityCodeSpinner"
-        android:id="@+id/downtime_reasons_spinner"
+        android:id="@+id/activity_code_spinner"
         android:layout_width="match_parent"
         android:layout_height="@dimen/resume_job_button_height"
         android:background="#ffffff"
@@ -40,7 +40,7 @@ i    <Spinner
         android:hint="@string/notes_hint"
         android:textSize="@dimen/form_entry_inline_text_size"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/downtime_reasons_spinner"
+        app:layout_constraintTop_toBottomOf="@+id/activity_code_spinner"
         tools:layout_editor_absoluteX="-8dp"/>
 
 

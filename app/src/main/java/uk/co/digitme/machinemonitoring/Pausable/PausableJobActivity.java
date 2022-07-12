@@ -1,5 +1,7 @@
 package uk.co.digitme.machinemonitoring.Pausable;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +13,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.util.Objects;
+
+import uk.co.digitme.machinemonitoring.Default.ActivityCode;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.Helpers.EndActivityResponseListener;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
@@ -28,10 +33,16 @@ public class PausableJobActivity extends JobActivityBase {
     Button mPauseJobButton;
     DbHelper dbHelper;
 
+    int currentActivityId;
+
+    PausableOeeWebSocketClient pausedOeeWebSocketClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.pausable_activity_job_in_progress);
         super.onCreate(savedInstanceState);
+        currentActivityId = getIntent().getIntExtra("currentActivityCodeId", 0);
+        setBackgroundColour(currentActivityId);
         dbHelper = new DbHelper(getApplicationContext());
 
         mPauseJobButton = findViewById(R.id.pause_job_button);
@@ -41,7 +52,8 @@ public class PausableJobActivity extends JobActivityBase {
                 pauseJob();
             }
         });
-
+        pausedOeeWebSocketClient = new PausableOeeWebSocketClient();
+        createWebSocketClient(pausedOeeWebSocketClient);
     }
 
     /**
@@ -69,4 +81,34 @@ public class PausableJobActivity extends JobActivityBase {
             }
         }
     }
+
+    public class PausableOeeWebSocketClient extends OeeWebSocketClient {
+
+        public PausableOeeWebSocketClient() {
+            super();
+        }
+
+        @Override
+        public void onTextReceived(String message) {
+            Log.i(TAG, "websocket message: " + message);
+            if (!message.equals(String.valueOf(currentActivityId))) {
+                finish();
+            }
+        }
+
+    }
+
+    private void setBackgroundColour(int activityCodeId){
+        int len = activityCodes.size();
+        for(int i = 0; i < len; i++){
+            ActivityCode ac = activityCodes.get(i);
+            if (ac.activityCodeId == activityCodeId){
+                View rootView = getWindow().getDecorView().getRootView();
+                rootView.setBackgroundColor(Color.parseColor(ac.colour));
+                Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(ac.colour)));
+            }
+        }
+    }
+
+
 }

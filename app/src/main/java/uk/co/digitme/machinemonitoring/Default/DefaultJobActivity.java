@@ -1,7 +1,12 @@
 package uk.co.digitme.machinemonitoring.Default;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import tech.gusavila92.websocketclient.WebSocketClient;
 import uk.co.digitme.machinemonitoring.JobActivityBase;
 import uk.co.digitme.machinemonitoring.R;
 
@@ -13,10 +18,17 @@ public class DefaultJobActivity extends JobActivityBase {
 
     final String TAG = "DefaultJobActivity";
 
+
+    OeeWebSocketClient webSocketClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_job_in_progress);
         super.onCreate(savedInstanceState);
-        }
+
+        webSocketClient = new OeeWebSocketClient();
+
+        createWebSocketClient(webSocketClient);
+    }
 
 }

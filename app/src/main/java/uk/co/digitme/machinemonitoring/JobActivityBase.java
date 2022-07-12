@@ -45,22 +45,24 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
     final String TAG = "JobInProgressActivity";
     public static final int JOB_END_DATA_REQUEST_CODE = 9002;
-    Spinner activityCodeSpinner;
+    public Spinner activityCodeSpinner;
     Button mEndJobButton;
     public ActivityResultLauncher<Intent> endJobResult;
 
     String jobNumber;
-    ArrayList<ActivityCode> activityCodes = new ArrayList<>();
+    public ArrayList<ActivityCode> activityCodes = new ArrayList<>();
     int machineId = 0;
 
     public DbHelper dbHelper;
-
-    private WebSocketClient webSocketClient;
+    public URI webSocketUri;
+    public String updateUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbHelper = new DbHelper(getApplicationContext());
+        updateUrl = dbHelper.getServerAddress() + "/android-update";
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
@@ -81,12 +83,14 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
         // Set up the end job button
         mEndJobButton = findViewById(R.id.end_job_button);
-        mEndJobButton.setOnClickListener(new OnOneOffClickListener() {
-            @Override
-            public void onSingleClick(View view) {
-                endJob();
-            }
-        });
+        if (mEndJobButton != null) {
+            mEndJobButton.setOnClickListener(new OnOneOffClickListener() {
+                @Override
+                public void onSingleClick(View view) {
+                    endJob();
+                }
+            });
+        }
 
         endJobResult = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -128,7 +132,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
                         View rootView = getWindow().getDecorView().getRootView();
                         rootView.setBackgroundColor(Color.parseColor(ac.colour));
                         Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(ac.colour)));
-                        updateActivity(ac.activityCodeId);
+                        updateActivity(ac.activityCodeId, updateUrl);
                     }
                     count++;
                 }
@@ -139,7 +143,11 @@ public abstract class JobActivityBase extends LoggedInActivity {
                 }
             });
         }
-        createWebSocketClient();
+        try {
+            webSocketUri = dbHelper.getServerURI();
+        } catch (URISyntaxException e) {
+            Toast.makeText(getApplicationContext(), "Could not parse server URI", Toast.LENGTH_LONG).show();
+        }
     }
 
 
@@ -180,18 +188,17 @@ public abstract class JobActivityBase extends LoggedInActivity {
      *
      * Updates the background colour if successful
      */
-    private void updateActivity(int activityCodeId){
+    public void updateActivity(int activityCodeId, String url){
 
         // Contact the server to inform of the update
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
-            String url = dbHelper.getServerAddress() + "/android-update";
             JSONObject jsonBody = new JSONObject();
 
             jsonBody.put("activity_code_id", activityCodeId);
             // Send the request. Don't listen for the response and ignore any failures, this isn't a critical update.
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
-                    url,
+                    updateUrl,
                     jsonBody,
                     response -> {
                         boolean success;
@@ -224,68 +231,61 @@ public abstract class JobActivityBase extends LoggedInActivity {
         }
     }
 
+    public class OeeWebSocketClient extends WebSocketClient {
 
-
-
-    private void createWebSocketClient() {
-        URI uri;
-        try {
-            uri = new URI("ws://192.168.0.100:80/activity-updates");
-        }
-        catch (URISyntaxException e) {
-            e.printStackTrace();
-            return;
+        public OeeWebSocketClient() {
+            super(webSocketUri);
         }
 
-        webSocketClient = new WebSocketClient(uri) {
-            @Override
-            public void onOpen() {
-                Log.i(TAG, "websocket connected");
-                JSONObject machineIdResponse = new JSONObject();
-                try {
-                    machineIdResponse.put("machine_id", machineId);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                webSocketClient.send(machineIdResponse.toString());
+        @Override
+        public void onOpen() {
+            Log.i(TAG, "websocket connected");
+            JSONObject machineIdResponse = new JSONObject();
+            try {
+                machineIdResponse.put("machine_id", machineId);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+            this.send(machineIdResponse.toString());
+        }
 
-            @Override
-            public void onTextReceived(String message) {
-                runOnUiThread(() -> {
-                    Log.i(TAG, "websocket message: " + message);
-                    setActivityCodeSpinner(Integer.parseInt(message));
-                });
+        @Override
+        public void onTextReceived(String message) {
+            runOnUiThread(() -> {
+                Log.i(TAG, "websocket message: " + message);
+                setActivityCodeSpinner(Integer.parseInt(message));
+            });
 
-            }
+        }
 
-            @Override
-            public void onBinaryReceived(byte[] data) {
-                Log.i(TAG, "onBinaryReceived");
-            }
+        @Override
+        public void onBinaryReceived(byte[] data) {
+            Log.i(TAG, "onBinaryReceived");
+        }
 
-            @Override
-            public void onPingReceived(byte[] data) {
-                Log.v(TAG, "onPingReceived");
-            }
+        @Override
+        public void onPingReceived(byte[] data) {
+            Log.v(TAG, "onPingReceived");
+        }
 
-            @Override
-            public void onPongReceived(byte[] data) {
-                Log.v(TAG, "onPongReceived");
-            }
+        @Override
+        public void onPongReceived(byte[] data) {
+            Log.v(TAG, "onPongReceived");
+        }
 
-            @Override
-            public void onException(Exception e) {
-                Log.e(TAG, "WebSocket Exception");
-                Log.e(TAG, e.getMessage());
-            }
+        @Override
+        public void onException(Exception e) {
+            Log.e(TAG, "WebSocket Exception");
+            Log.e(TAG, e.getMessage());
+        }
 
-            @Override
-            public void onCloseReceived() {
-                Log.w(TAG, "Websocket Closing");
-            }
-        };
+        @Override
+        public void onCloseReceived() {
+            Log.w(TAG, "Websocket Closing");
+        }
+    }
 
+    public void createWebSocketClient(WebSocketClient webSocketClient) {
         webSocketClient.setConnectTimeout(10000);
         webSocketClient.setReadTimeout(60000);
         webSocketClient.enableAutomaticReconnection(5000);

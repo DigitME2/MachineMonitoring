@@ -48,6 +48,7 @@
     <string name="server_address_hint"> Address e.g. http://192.168.0.1:8000</string>
 
     <string name="action_unpause">Resume Job</string>
+    <string name="job_paused_top_text">Job paused. Enter reason for downtime:</string>
     <string name="downtime_reasons_spinner_prompt">Reason for stoppage</string>
 
     <string name="save">Save</string>

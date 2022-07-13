@@ -121,6 +121,6 @@ public class DbHelper extends SQLiteOpenHelper {
         } else {
             port = ":" + uri.getPort();
         }
-        return new URI(scheme + uri.getHost() + port + "/activity-updates");
+        return new URI(scheme + uri.getHost() + port + "/api/activity-updates");
     }
 }

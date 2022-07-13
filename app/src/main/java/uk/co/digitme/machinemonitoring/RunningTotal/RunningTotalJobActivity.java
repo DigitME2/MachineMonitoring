@@ -34,12 +34,17 @@ public class RunningTotalJobActivity extends JobActivityBase {
     Runnable flashUpdateBox;
     int currentQuantity;
 
+    OeeWebSocketClient webSocketClient;
+
     long lastUpdateTimestampSeconds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.running_total_activity_job_in_progress);
         super.onCreate(savedInstanceState);
+
+        webSocketClient = new OeeWebSocketClient();
+        createWebSocketClient(webSocketClient);
 
         mUpdateTotalButton = findViewById(R.id.update_total_button);
         mUpdateTotalButton.setOnClickListener(new OnOneOffClickListener() {

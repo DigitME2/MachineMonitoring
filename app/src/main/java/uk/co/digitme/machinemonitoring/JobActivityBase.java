@@ -255,7 +255,6 @@ public abstract class JobActivityBase extends LoggedInActivity {
                 Log.i(TAG, "websocket message: " + message);
                 setActivityCodeSpinner(Integer.parseInt(message));
             });
-
         }
 
         @Override
@@ -287,7 +286,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
 
     public void createWebSocketClient(WebSocketClient webSocketClient) {
         webSocketClient.setConnectTimeout(10000);
-        webSocketClient.setReadTimeout(60000);
+        webSocketClient.setReadTimeout(0);
         webSocketClient.enableAutomaticReconnection(5000);
         webSocketClient.connect();
     }

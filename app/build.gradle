@@ -6,8 +6,8 @@ android {
         applicationId "uk.samban.machinemonitoring"
         minSdkVersion 24
         targetSdkVersion 33
-        versionCode 7
-        versionName "6.0"
+        versionCode 8
+        versionName "6.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -32,7 +32,7 @@ dependencies {
     implementation 'tech.gusavila92:java-android-websocket-client:1.2.2'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

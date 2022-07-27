@@ -254,9 +254,6 @@ public class DataEntryActivity extends LoggedInActivity {
             for (int i = 0; i < requestedData.length(); i++) {
                 editTexts[i].setShowSoftInputOnFocus(false);
             }
-        } else{
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
         }
     }
 

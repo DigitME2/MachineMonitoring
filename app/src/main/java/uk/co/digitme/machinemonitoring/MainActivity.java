@@ -1,5 +1,7 @@
 package uk.co.digitme.machinemonitoring;
 
+import static uk.co.digitme.machinemonitoring.Helpers.ServerDiscovery.findServer;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -84,8 +86,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // On the first run, show the "set address" button immediately
+        // On the first run, try to get server address immediately
         if (prefs.getBoolean("firstrun", true)) {
+            discoverServer();
             mStatusText.setVisibility(View.INVISIBLE);
             mRetryButton.setVisibility(View.INVISIBLE);
             mSetAddressButton.setVisibility(View.VISIBLE);
@@ -101,11 +104,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    private boolean discoverServer(){
+        mStatusText.setText("Searching for OEE Server...");
+        return findServer(getApplicationContext());
+    }
+
+
     private void showError(String errorText) {
-        mStatusText.setText(errorText);
-        mStatusText.setVisibility(View.VISIBLE);
-        mRetryButton.setVisibility(View.VISIBLE);
-        mSetAddressButton.setVisibility(View.VISIBLE);
+        if (!discoverServer()) {
+            mStatusText.setText(errorText);
+            mStatusText.setVisibility(View.VISIBLE);
+            mRetryButton.setVisibility(View.VISIBLE);
+            mSetAddressButton.setVisibility(View.VISIBLE);
+        }
     }
 
     /**

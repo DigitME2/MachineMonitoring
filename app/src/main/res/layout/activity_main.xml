@@ -26,12 +26,21 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
     <Button
+        android:id="@+id/find_server_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/find_server_button_text"
+        android:visibility="invisible"
+        app:layout_constraintTop_toBottomOf="@+id/retry_button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+    <Button
         android:id="@+id/set_address_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/set_address_button_text"
         android:visibility="invisible"
-        app:layout_constraintTop_toBottomOf="@+id/retry_button"
+        app:layout_constraintTop_toBottomOf="@+id/find_server_button"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 

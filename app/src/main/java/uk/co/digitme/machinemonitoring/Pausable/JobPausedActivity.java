@@ -117,6 +117,7 @@ public class JobPausedActivity extends JobActivityBase {
             String url = dbHelper.getServerAddress() + "/pausable-resume-job";
             JSONObject jsonBody = new JSONObject();
 
+            jsonBody.put("device_uuid", dbHelper.getDeviceUuid());
             jsonBody.put("downtime_reason", activityCodeSpinner.getSelectedItem().toString());
             jsonBody.put("notes", mNotes.getText().toString());
 

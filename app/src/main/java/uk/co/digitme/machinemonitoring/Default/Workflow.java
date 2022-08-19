@@ -72,15 +72,15 @@ public class Workflow {
         Log.d(TAG, "State: no user");
         Intent loginIntent = new Intent(context, LoginActivity.class);
         String machineText = "Could not get assigned machine";
-        String IP = "";
-        if (serverResponse.has("ip")) {
-            IP = serverResponse.getString("ip");
+        String tabletName = "";
+        if (serverResponse.has("device_name")) {
+            tabletName = serverResponse.getString("device_name");
         }
         if (serverResponse.has("machine")) {
             machineText = serverResponse.getString("machine");
         }
         loginIntent.putExtra("machineText", machineText);
-        loginIntent.putExtra("IP", IP);
+        loginIntent.putExtra("tabletName", tabletName);
         return loginIntent;
     }
 

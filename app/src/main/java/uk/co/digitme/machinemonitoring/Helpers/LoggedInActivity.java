@@ -11,10 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
 
 import uk.co.digitme.machinemonitoring.R;
 
@@ -47,17 +47,17 @@ public abstract class LoggedInActivity extends AppCompatActivity {
                 RequestQueue queue = Volley.newRequestQueue(this);
                 String url = dbHelper.getServerAddress() + "/android-logout";
 
+                JSONObject jsonBody = new JSONObject();
+                jsonBody.put("device_uuid", dbHelper.getDeviceUuid());
+
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                         url,
-                        null,
+                        jsonBody,
                         new EndActivityResponseListener(this),
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.v("ErrorListener", String.valueOf(error));
-                                Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
-                                finish();
-                            }
+                        error -> {
+                            Log.v("ErrorListener", String.valueOf(error));
+                            Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
+                            finish();
                         });
 
                 queue.add(jsonObjectRequest);

@@ -49,8 +49,8 @@ public class LoginActivity extends AppCompatActivity {
 
         dbHelper = new DbHelper(getApplicationContext());
         setContentView(R.layout.activity_login);
-        String IP = getIntent().getStringExtra("IP");
-        Objects.requireNonNull(getSupportActionBar()).setTitle(IP + " - Log in");
+        String tabletName = getIntent().getStringExtra("tabletName");
+        Objects.requireNonNull(getSupportActionBar()).setTitle(tabletName + " - Log in");
 
         //Set up the custom keyboard
         CustomNumpadView cnv = findViewById(R.id.keyboard_view);
@@ -119,6 +119,7 @@ public class LoginActivity extends AppCompatActivity {
             JSONObject jsonBody = new JSONObject();
             jsonBody.put("user_id", userIdEditText.getText().toString());
             jsonBody.put("password", pinCodeEditText.getText().toString());
+            jsonBody.put("device_uuid", dbHelper.getDeviceUuid());
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                     url,

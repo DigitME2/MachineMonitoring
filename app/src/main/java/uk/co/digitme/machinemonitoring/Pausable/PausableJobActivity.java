@@ -13,6 +13,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONObject;
+
 import java.util.Objects;
 
 import uk.co.digitme.machinemonitoring.Default.ActivityCode;
@@ -63,10 +65,12 @@ public class PausableJobActivity extends JobActivityBase {
         try {
             RequestQueue queue = Volley.newRequestQueue(this);
             String url = dbHelper.getServerAddress() + "/pausable-pause-job";
+            JSONObject jsonRequest = new JSONObject();
+            jsonRequest.put("device_uuid", dbHelper.getDeviceUuid());
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                     url,
-                    null,
+                    jsonRequest,
                     new EndActivityResponseListener(this),
                     error -> {
                         Log.v("ErrorListener", String.valueOf(error));

@@ -195,6 +195,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
             RequestQueue queue = Volley.newRequestQueue(this);
             JSONObject jsonBody = new JSONObject();
 
+            jsonBody.put("device_uuid", dbHelper.getDeviceUuid());
             jsonBody.put("activity_code_id", activityCodeId);
             // Send the request. Don't listen for the response and ignore any failures, this isn't a critical update.
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,

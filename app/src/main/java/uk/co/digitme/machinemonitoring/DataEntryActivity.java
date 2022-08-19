@@ -336,7 +336,7 @@ public class DataEntryActivity extends LoggedInActivity {
             RequestQueue queue = Volley.newRequestQueue(this);
             // The URL is sent by the requesting activity
             String url = dbHelper.getServerAddress() + getIntent().getStringExtra("url");
-
+            resultJson.put("device_uuid", dbHelper.getDeviceUuid());
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                     url,
                     resultJson,

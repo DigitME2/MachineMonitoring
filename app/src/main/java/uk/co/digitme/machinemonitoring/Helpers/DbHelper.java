@@ -1,5 +1,6 @@
 package uk.co.digitme.machinemonitoring.Helpers;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -14,6 +15,7 @@ import static uk.co.digitme.machinemonitoring.MainActivity.DEFAULT_URL;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 public class DbHelper extends SQLiteOpenHelper {
 
@@ -24,6 +26,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public static final String COLUMN_ID = "ID";
     public static final String COLUMN_SERVER_ADDRESS = "SERVER_ADDRESS";
+    public static final String COLUMN_DEVICE_UUID = "DEVICE_UUID";
 
     public DbHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -33,13 +36,16 @@ public class DbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS SETTINGS (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_SERVER_ADDRESS + " TEXT NOT NULL); ";
+                COLUMN_SERVER_ADDRESS + " TEXT NOT NULL, " +
+                COLUMN_DEVICE_UUID + " TEXT " +
+                "); ";
 
         db.execSQL(SQL_CREATE_TABLE);
 
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_ID, 1);
         cv.put(COLUMN_SERVER_ADDRESS, DEFAULT_URL);
+        cv.put(COLUMN_DEVICE_UUID, UUID.randomUUID().toString());
 
         db.replace("SETTINGS", null ,cv);
         Log.d(TAG, "Saving server address: " + DEFAULT_URL);
@@ -47,17 +53,12 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        String address = getServerAddress();
-
     }
 
+    @SuppressLint("Range")
     public String getServerAddress(){
         SQLiteDatabase db = getReadableDatabase();
 
-        final String SQL_GET_ADDRESS = "SELECT SERVER_ADDRESS FROM SETTINGS WHERE ID=1 Limit 1";
-        //Cursor cursor = db.rawQuery(SQL_GET_ADDRESS, null);
-        //Cursor cursor = db.query("SETTINGS", new String[] {"SERVER_ADDRESS"},
-        //        "ID=1", null, null, null, null);
         Cursor cursor = db.rawQuery("SELECT * FROM SETTINGS",null);
         if(cursor.moveToFirst()) {
             String address;
@@ -81,19 +82,16 @@ public class DbHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_ID, 1);
         cv.put(COLUMN_SERVER_ADDRESS, address);
 
-        db.replace("SETTINGS", null ,cv);
+        db.update("SETTINGS", cv, "ID = ?", new String[] {"1"});
         Log.d(TAG, "Saving server address: " + address);
     }
 
+    @SuppressLint("Range")
     public URI getServerURI() throws URISyntaxException {
         SQLiteDatabase db = getReadableDatabase();
         String address;
         URI uri;
 
-        final String SQL_GET_ADDRESS = "SELECT SERVER_ADDRESS FROM SETTINGS WHERE ID=1 Limit 1";
-        //Cursor cursor = db.rawQuery(SQL_GET_ADDRESS, null);
-        //Cursor cursor = db.query("SETTINGS", new String[] {"SERVER_ADDRESS"},
-        //        "ID=1", null, null, null, null);
         Cursor cursor = db.rawQuery("SELECT * FROM SETTINGS",null);
         if(cursor.moveToFirst()) {
             try {
@@ -122,5 +120,26 @@ public class DbHelper extends SQLiteOpenHelper {
             port = ":" + uri.getPort();
         }
         return new URI(scheme + uri.getHost() + port + "/api/activity-updates");
+    }
+
+    @SuppressLint("Range")
+    public String getDeviceUuid() {
+        SQLiteDatabase db = getReadableDatabase();
+        String uuid;
+
+        Cursor cursor = db.rawQuery("SELECT * FROM SETTINGS",null);
+        if(cursor.moveToFirst()) {
+            try {
+                uuid = cursor.getString(cursor.getColumnIndex(COLUMN_DEVICE_UUID));
+                cursor.close();
+            } catch (CursorIndexOutOfBoundsException e) {
+                Log.e(TAG, "Failed to get uuid");
+                uuid = "";
+            }
+        } else {
+            Log.e(TAG, "Failed to get uuid");
+            uuid = "";
+        }
+        return uuid;
     }
 }

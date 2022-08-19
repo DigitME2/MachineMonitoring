@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -49,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     TextView mStatusText;
     Button mRetryButton;
     Button mSetAddressButton;
+    Button mFindServerButton;
 
     DbHelper dbHelper;
     SharedPreferences prefs = null;
@@ -67,14 +67,28 @@ public class MainActivity extends AppCompatActivity {
         // These will become visible after failing to connect.
         mStatusText = findViewById(R.id.main_activity_status);
         mRetryButton = findViewById(R.id.retry_button);
+        mFindServerButton = findViewById(R.id.find_server_button);
 
         // The retry button attempts to contact the server again.
         mRetryButton.setOnClickListener(new OnOneOffClickListener() {
             @Override
             public void onSingleClick(View v) {
-                checkState();
+                try {
+                    checkState();
+                } catch (Exception e) {
+                    showError(e.getMessage());
+                }
             }
         });
+
+        // The find server button tries to discover the server address automatically
+        mFindServerButton.setOnClickListener(new OnOneOffClickListener() {
+            @Override
+            public void onSingleClick(View v) {
+                    discoverServer();
+            }
+        });
+
         // The "set address" button opens a new activity allowing the user to change the server ip
         mSetAddressButton = findViewById(R.id.set_address_button);
         mSetAddressButton.setOnClickListener(v -> {
@@ -91,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
             discoverServer();
             mStatusText.setVisibility(View.INVISIBLE);
             mRetryButton.setVisibility(View.INVISIBLE);
+            mFindServerButton.setVisibility(View.VISIBLE);
             mSetAddressButton.setVisibility(View.VISIBLE);
             prefs.edit().putBoolean("firstrun", false).apply();
         } else {
@@ -98,26 +113,44 @@ public class MainActivity extends AppCompatActivity {
             mStatusText.setVisibility(View.INVISIBLE);
             mRetryButton.setVisibility(View.INVISIBLE);
             mSetAddressButton.setVisibility(View.INVISIBLE);
+            mFindServerButton.setVisibility(View.INVISIBLE);
             // When arriving at this page, immediately contact the server to see which screen the app
             // should be on, and start that activity
-            checkState();
+            try {
+                checkState();
+            } catch (Exception e) {
+                showError(e.getMessage());
+            }
         }
     }
 
 
-    private boolean discoverServer(){
+    @SuppressLint("SetTextI18n")
+    private void discoverServer() {
         mStatusText.setText("Searching for OEE Server...");
-        return findServer(getApplicationContext());
+        new Thread() {
+            public void run() {
+                    runOnUiThread(() -> {
+                        boolean success = findServer(getApplicationContext());
+                        if (success){
+                            checkState();
+                            mStatusText.setText("Server address found. Connecting...");
+                        } else {
+                            showError("Server discovery failed");
+                        }
+                    });
+            }
+        }.start();
+
     }
 
 
     private void showError(String errorText) {
-        if (!discoverServer()) {
-            mStatusText.setText(errorText);
-            mStatusText.setVisibility(View.VISIBLE);
-            mRetryButton.setVisibility(View.VISIBLE);
-            mSetAddressButton.setVisibility(View.VISIBLE);
-        }
+        mStatusText.setText(errorText);
+        mStatusText.setVisibility(View.VISIBLE);
+        mRetryButton.setVisibility(View.VISIBLE);
+        mFindServerButton.setVisibility(View.VISIBLE);
+        mSetAddressButton.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -126,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void checkState() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = dbHelper.getServerAddress() + "/check-state";
+        String url = dbHelper.getServerAddress() + "/check-state?device_uuid=" + dbHelper.getDeviceUuid();
         @SuppressLint("SetTextI18n") JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
                 url,
                 null,
@@ -142,9 +175,9 @@ public class MainActivity extends AppCompatActivity {
                 showError("Could not connect to network");
             } else if (error instanceof ServerError) {
                 showError("Could not connect to server");
+                showError(error.getMessage());
             }
             Log.v("ErrorListener", String.valueOf(error));
-            Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
         });
         queue.add(jsonObjectRequest);
     }

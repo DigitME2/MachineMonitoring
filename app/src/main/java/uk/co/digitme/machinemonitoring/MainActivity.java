@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     Button mRetryButton;
     Button mSetAddressButton;
     Button mFindServerButton;
+    TextView mAddressText;
 
     DbHelper dbHelper;
     SharedPreferences prefs = null;
@@ -68,12 +69,16 @@ public class MainActivity extends AppCompatActivity {
         mStatusText = findViewById(R.id.main_activity_status);
         mRetryButton = findViewById(R.id.retry_button);
         mFindServerButton = findViewById(R.id.find_server_button);
+        mAddressText = findViewById(R.id.main_activity_address_tv);
+
+        mAddressText.setText(dbHelper.getServerAddress());
 
         // The retry button attempts to contact the server again.
         mRetryButton.setOnClickListener(new OnOneOffClickListener() {
             @Override
             public void onSingleClick(View v) {
                 try {
+                    mStatusText.setText("Connecting...");
                     checkState();
                 } catch (Exception e) {
                     showError(e.getMessage());
@@ -107,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             mRetryButton.setVisibility(View.INVISIBLE);
             mFindServerButton.setVisibility(View.VISIBLE);
             mSetAddressButton.setVisibility(View.VISIBLE);
+            mAddressText.setVisibility(View.VISIBLE);
             prefs.edit().putBoolean("firstrun", false).apply();
         } else {
             // Hide the buttons by default. This stops them showing during transitions between activities
@@ -114,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
             mRetryButton.setVisibility(View.INVISIBLE);
             mSetAddressButton.setVisibility(View.INVISIBLE);
             mFindServerButton.setVisibility(View.INVISIBLE);
+            mAddressText.setVisibility(View.INVISIBLE);
             // When arriving at this page, immediately contact the server to see which screen the app
             // should be on, and start that activity
             try {
@@ -151,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
         mRetryButton.setVisibility(View.VISIBLE);
         mFindServerButton.setVisibility(View.VISIBLE);
         mSetAddressButton.setVisibility(View.VISIBLE);
+        mAddressText.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -172,10 +180,9 @@ public class MainActivity extends AppCompatActivity {
                 }, error -> {
             // Show a different error message depending on the error
             if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                showError("Could not connect to network");
+                showError("Could not connect");
             } else if (error instanceof ServerError) {
                 showError("Could not connect to server");
-                showError(error.getMessage());
             }
             Log.v("ErrorListener", String.valueOf(error));
         });

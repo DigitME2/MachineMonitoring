@@ -99,8 +99,6 @@
             android:fontFamily="@string/form_font_family" />
     </LinearLayout>
 
-
-<!--todo show the failure reason in a text view. A toast isnt visible enough.-->
     <uk.co.digitme.machinemonitoring.Helpers.CustomNumpadView
         android:id="@+id/keyboard_view"
         android:layout_width="wrap_content"

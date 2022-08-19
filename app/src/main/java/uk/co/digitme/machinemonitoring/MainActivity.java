@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                         if (success){
                             checkState();
                             mStatusText.setText("Server address found. Connecting...");
+                            mAddressText.setText(dbHelper.getServerAddress());
                         } else {
                             showError("Server discovery failed");
                         }

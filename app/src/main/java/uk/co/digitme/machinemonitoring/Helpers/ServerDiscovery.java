@@ -89,10 +89,11 @@ public class ServerDiscovery {
 
             //Check if the message is correct
             String message = new String(receivePacket.getData()).trim();
-            if (message.equals(DISCOVERY_RESPONSE_MESSAGE)) {
+            String[] split = message.split(":",2);
+            if (split[0].equals(DISCOVERY_RESPONSE_MESSAGE)) {
                 ip = receivePacket.getAddress().toString();
                 Log.v(TAG, "HOST IP IS " + ip);
-                String address = "http://" + ip + ":80";  // todo support other ports
+                String address = "http://" + ip + ":" + split[1];
                 //Save the ip as a preference
                 dbHelper.saveServerAddress(address);
                 return true;

@@ -88,23 +88,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @SuppressLint("Range")
     public URI getServerURI() throws URISyntaxException {
-        SQLiteDatabase db = getReadableDatabase();
-        String address;
         URI uri;
-
-        Cursor cursor = db.rawQuery("SELECT * FROM SETTINGS",null);
-        if(cursor.moveToFirst()) {
-            try {
-                address = cursor.getString(cursor.getColumnIndex(COLUMN_SERVER_ADDRESS));
-                cursor.close();
-            } catch (CursorIndexOutOfBoundsException e) {
-                Log.e(TAG, "Failed to get server address");
-                address = "";
-            }
-        } else {
-            Log.e(TAG, "Failed to get server address");
-            address = "";
-        }
+        String address = this.getServerAddress();
 
         uri = new URI(address);
         String scheme;

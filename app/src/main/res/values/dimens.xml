@@ -11,6 +11,10 @@
     <dimen name="form_entry_inline_text_size">25sp</dimen>
     <dimen name="form_entry_text_padding">10dp</dimen>
 
+    <dimen name="form_entry_warning_text_size">15sp</dimen>
+    <dimen name="validation_text_size">15sp</dimen>
+    <dimen name="validation_padding">1dp</dimen>
+
     <dimen name="activity_code_scroller_height">150dp</dimen>
 
     <dimen name="job_action_button_height">150dp</dimen>

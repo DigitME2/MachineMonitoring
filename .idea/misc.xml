@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../layout/custom_preview.xml" value="0.23125" />
         <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/layout/activity_main.xml" value="0.39010416666666664" />
         <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/layout/data_input_item.xml" value="0.3880208333333333" />
         <entry key="..\:/Users/Sam/AndroidStudioProjects/MachineMonitoring/app/src/main/res/layout/numerical_data_input_form.xml" value="0.31354166666666666" />
@@ -14,6 +15,7 @@
         <entry key="app/src/main/res/layout/data_entry_activity.xml" value="0.3428442028985507" />
         <entry key="app/src/main/res/layout/data_input_button.xml" value="0.17135416666666667" />
         <entry key="app/src/main/res/layout/data_input_item.xml" value="0.17135416666666667" />
+        <entry key="app/src/main/res/layout/data_validation_item.xml" value="0.35" />
         <entry key="app/src/main/res/layout/dialog_number_picker.xml" value="0.29739583333333336" />
         <entry key="app/src/main/res/layout/numerical_data_input_form.xml" value="0.23333333333333334" />
         <entry key="app/src/main/res/layout/pausable_activity_job_in_progress.xml" value="0.3" />

@@ -93,7 +93,7 @@ public class ServerDiscovery {
             if (split[0].equals(DISCOVERY_RESPONSE_MESSAGE)) {
                 ip = receivePacket.getAddress().toString();
                 Log.v(TAG, "HOST IP IS " + ip);
-                String address = "http://" + ip + ":" + split[1];
+                String address = "http:/" + ip + ":" + split[1];
                 //Save the ip as a preference
                 dbHelper.saveServerAddress(address);
                 return true;

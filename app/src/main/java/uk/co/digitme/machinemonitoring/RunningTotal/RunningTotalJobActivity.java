@@ -86,7 +86,6 @@ public class RunningTotalJobActivity extends JobActivityBase {
         new CountDownTimer(milliSecondsTillUpdateRequest, 1000) {
 
             public void onTick(long millisUntilFinished) {
-                Log.d(TAG, "countdown: " + millisUntilFinished);
             }
 
             public void onFinish() {

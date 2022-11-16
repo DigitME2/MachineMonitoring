@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -121,27 +122,9 @@ public abstract class JobActivityBase extends LoggedInActivity {
                 setActivityCodeSpinner(current_activity_code_id);
             }
             // As soon as the reason is changed, tell the server
-            activityCodeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                // Set a count to ignore the first change, which happens during the creation of the activity
-                int count = 0;
-
-                @Override
-                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    ActivityCode ac = (ActivityCode) adapterView.getItemAtPosition(i);
-                    if (count > 0) {
-                        View rootView = getWindow().getDecorView().getRootView();
-                        rootView.setBackgroundColor(Color.parseColor(ac.colour));
-                        Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(ac.colour)));
-                        updateActivity(ac.activityCodeId);
-                    }
-                    count++;
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-                    // Do nothing
-                }
-            });
+            SpinnerInteractionListener listener = new SpinnerInteractionListener();
+            activityCodeSpinner.setOnTouchListener(listener);
+            activityCodeSpinner.setOnItemSelectedListener(listener);
         }
         try {
             webSocketUri = dbHelper.getServerURI();
@@ -150,7 +133,36 @@ public abstract class JobActivityBase extends LoggedInActivity {
         }
     }
 
+    public class SpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
 
+        boolean userSelect = false;
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            userSelect = true;
+            v.performClick();
+            return false;
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+            if (userSelect) {
+                // Your selection handling code here
+                ActivityCode ac = (ActivityCode) adapterView.getItemAtPosition(pos);
+                View rootView = getWindow().getDecorView().getRootView();
+                rootView.setBackgroundColor(Color.parseColor(ac.colour));
+                Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(new ColorDrawable(Color.parseColor(ac.colour)));
+                updateActivity(ac.activityCodeId);
+                userSelect = false;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+            // pass
+        }
+
+    }
 
 
     public void setActivityCodeSpinner(int activityCodeId) {
@@ -222,6 +234,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
                         finish();
                     });
 
+            Log.d(TAG, "POSTing to " + updateUrl);
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
             e.printStackTrace();

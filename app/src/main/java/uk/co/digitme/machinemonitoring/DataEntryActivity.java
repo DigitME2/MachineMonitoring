@@ -270,7 +270,7 @@ public class DataEntryActivity extends LoggedInActivity {
                 if (requestedDataItems[i].has(WARNING_KEY)) {
                     validationTVs[i].setText(requestedDataItems[i].getString(WARNING_KEY));
                     validationTVs[i].setVisibility(View.VISIBLE);
-                } else {
+                } else if (requestedDataItems[i].has(VALIDATION_KEY)) {
                     JSONObject validation = new JSONObject(requestedDataItems[i].getString(VALIDATION_KEY));
                     editTexts[i].addTextChangedListener(new DataValidationTextWatcher(validationTVs[i], validation));
                 }
@@ -370,7 +370,7 @@ public class DataEntryActivity extends LoggedInActivity {
                         Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
                         finish();
                     });
-
+            Log.d(TAG, "POSTing to " + url);
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
             e.printStackTrace();

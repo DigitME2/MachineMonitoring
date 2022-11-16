@@ -77,6 +77,7 @@ public class PausableJobActivity extends JobActivityBase {
                         Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
                     });
 
+            Log.d(TAG, "POSTing to " + url);
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
             e.printStackTrace();

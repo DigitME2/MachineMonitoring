@@ -10,14 +10,15 @@ import android.content.IntentFilter;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -31,7 +32,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -58,10 +58,12 @@ public class DataEntryActivity extends LoggedInActivity {
     public final static String TYPE_KEY = "type";
     public final static String AUTOFILL_KEY = "autofill";
     public final static String VALIDATION_KEY = "validation";
+    public final static String WARNING_KEY = "warning";
 
     DbHelper dbHelper;
     TextView instructionsTV;
     EditText[] editTexts;
+    TextView[] validationTVs;
     LinearLayout parentLayout;
     Button sendButton;
     JSONObject requestedData;
@@ -116,8 +118,7 @@ public class DataEntryActivity extends LoggedInActivity {
             String jsonString = getIntent().getStringExtra("requestedDataAutofill");
             if (jsonString != null) {
                 requestedDataAutoFill = new JSONObject(jsonString);
-            }
-            else {
+            } else {
                 requestedDataAutoFill = new JSONObject();  //Initialise empty object
             }
         } catch (JSONException e) {
@@ -128,7 +129,7 @@ public class DataEntryActivity extends LoggedInActivity {
         // If given instructions, show them at the top in a textview, otherwise hide the textview
         String instructions = getIntent().getStringExtra("instructionText");
         instructionsTV = findViewById(R.id.data_entry_instructions);
-        if (instructions == null || instructions.length() < 1){
+        if (instructions == null || instructions.length() < 1) {
             instructionsTV.setVisibility(View.GONE);
         } else {
             instructionsTV.setVisibility(View.VISIBLE);
@@ -152,6 +153,7 @@ public class DataEntryActivity extends LoggedInActivity {
         parentLayout = findViewById(R.id.data_entry_parent);
         ViewGroup viewGroup = parentLayout;
         editTexts = new EditText[requestedData.length()];
+        validationTVs = new TextView[requestedData.length()];
         boolean allNumericalInput = true;
         for (int i = 0; i < requestedData.length(); i++) {
             String title;
@@ -174,6 +176,12 @@ public class DataEntryActivity extends LoggedInActivity {
                 continue;
             }
             tv.setText(title);
+
+            LinearLayout validationRow = (LinearLayout) inflater.inflate(R.layout.data_validation_item, viewGroup, false);
+            parentLayout.addView(validationRow);
+            TextView validationTextView = validationRow.findViewById(R.id.validation_text);
+            validationTVs[i] = validationTextView;
+            validationTVs[i].setVisibility(View.GONE);
             switch (inputType) {
                 case "text":
                     if (!autofill.equals("")) {
@@ -205,7 +213,7 @@ public class DataEntryActivity extends LoggedInActivity {
                         try {
                             // Remove the broadcast receiver to stop the time updates
                             unregisterReceiver(_broadcastReceiver);
-                        }catch (IllegalArgumentException e) {
+                        } catch (IllegalArgumentException e) {
                             // If the receiver is already registered
                         }
                         final Calendar c = Calendar.getInstance();
@@ -214,10 +222,10 @@ public class DataEntryActivity extends LoggedInActivity {
                         TimePickerDialog mTimePicker = new TimePickerDialog(DataEntryActivity.this, (timePicker, hourOfDay, minuteOfDay) -> {
                             String hourString = Integer.toString(hourOfDay);
                             String minuteString = Integer.toString(minuteOfDay);
-                            if (hourOfDay < 10){
+                            if (hourOfDay < 10) {
                                 hourString = "0" + hourOfDay;
                             }
-                            if (minuteOfDay < 10){
+                            if (minuteOfDay < 10) {
                                 minuteString = "0" + minuteOfDay;
                             }
                             String timeString = hourString + ":" + minuteString;
@@ -255,6 +263,21 @@ public class DataEntryActivity extends LoggedInActivity {
                 editTexts[i].setShowSoftInputOnFocus(false);
             }
         }
+
+        // Set up data validation text (show extra info when data is entered by the user)
+        for (int i = 0; i < requestedData.length(); i++) {
+            try {
+                if (requestedDataItems[i].has(WARNING_KEY)) {
+                    validationTVs[i].setText(requestedDataItems[i].getString(WARNING_KEY));
+                    validationTVs[i].setVisibility(View.VISIBLE);
+                } else if (requestedDataItems[i].has(VALIDATION_KEY)) {
+                    JSONObject validation = new JSONObject(requestedDataItems[i].getString(VALIDATION_KEY));
+                    editTexts[i].addTextChangedListener(new DataValidationTextWatcher(validationTVs[i], validation));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
@@ -272,7 +295,7 @@ public class DataEntryActivity extends LoggedInActivity {
                 Log.e(TAG, e.toString());
                 continue;
             }
-            if (inputType.equals("time") && autofill.equals("current")){
+            if (inputType.equals("time") && autofill.equals("current")) {
                 editTexts[i].setText(_sdfWatchTime.format(new Date()));
             }
         }
@@ -282,7 +305,7 @@ public class DataEntryActivity extends LoggedInActivity {
 
     private void send(Boolean ignoreValidation) {
 
-        JSONArray validEntries = null;
+        JSONObject validation = null;
         JSONObject resultJson = new JSONObject();
 
         for (int i = 0; i < requestedData.length(); i++) {
@@ -291,14 +314,15 @@ public class DataEntryActivity extends LoggedInActivity {
             if (!ignoreValidation && requestedDataItems[i].has(VALIDATION_KEY)) {
                 try {
                     // Get the list of values that the entered amount is allowed to be
-                    validEntries = new JSONArray(requestedDataItems[i].getString(VALIDATION_KEY));
+                    validation = new JSONObject(requestedDataItems[i].getString(VALIDATION_KEY));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
                 // Create a dialog box if the edit text value is not in the list of valid entries
-                if (validEntries != null && !validEntries.toString().contains(editTexts[i].getText())) {
+                if (validation != null && !validation.toString().contains(editTexts[i].getText())) {
                     DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-                        if (which == DialogInterface.BUTTON_POSITIVE){
+                        if (which == DialogInterface.BUTTON_POSITIVE) {
                             // Repeat without data validation
                             send(true);
                         }
@@ -307,7 +331,7 @@ public class DataEntryActivity extends LoggedInActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(DataEntryActivity.this);
                     String dialogText;
                     try {
-                        dialogText = "WARNING: "  + requestedDataItems[i].getString(TITLE_KEY) + " did not pass data validation. Continue anyway?";
+                        dialogText = "WARNING: " + requestedDataItems[i].getString(TITLE_KEY) + " did not pass data validation. Continue anyway?";
                     } catch (JSONException e) {
                         dialogText = "Data looks incorrect. Send anyway?";
                         e.printStackTrace();
@@ -346,7 +370,7 @@ public class DataEntryActivity extends LoggedInActivity {
                         Toast.makeText(getApplicationContext(), String.valueOf(error), Toast.LENGTH_LONG).show();
                         finish();
                     });
-
+            Log.d(TAG, "POSTing to " + url);
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
             e.printStackTrace();
@@ -359,6 +383,35 @@ public class DataEntryActivity extends LoggedInActivity {
         }
     }
 
+    private static class DataValidationTextWatcher implements TextWatcher {
+        TextView validationTV;
+        JSONObject validationDict;
+
+        public DataValidationTextWatcher(TextView validationTV, JSONObject validationDict) {
+            this.validationTV = validationTV;
+            this.validationDict = validationDict;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            try {
+                String validationText = validationDict.getString(charSequence.toString());
+                this.validationTV.setText(validationText);
+                this.validationTV.setVisibility(View.VISIBLE);
+            } catch (JSONException e) {
+                this.validationTV.setText("");
+                this.validationTV.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+        }
+    }
 }
 
 

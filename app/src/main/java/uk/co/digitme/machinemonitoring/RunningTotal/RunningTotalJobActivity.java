@@ -104,7 +104,7 @@ public class RunningTotalJobActivity extends JobActivityBase {
         // Create the instructions text
         SimpleDateFormat formatter = new SimpleDateFormat("kk:mm", Locale.ENGLISH);
         String timeString = formatter.format(new Date(lastUpdateTimestampSeconds*1000));
-        updateTotalIntent.putExtra("instructionText", "Enter the quantity produced since " + timeString);
+        updateTotalIntent.putExtra("instructionText", "Enter the quantity produced since " + timeString + ".\nCurrent total: " + currentQuantity);
         // Pass the requested data from the initial intent
         updateTotalIntent.putExtra("requestedData", getIntent().getStringExtra("requestedDataOnEnd"));
         // The text shown on the send button
@@ -130,7 +130,7 @@ public class RunningTotalJobActivity extends JobActivityBase {
         // Create the instructions text
         SimpleDateFormat formatter = new SimpleDateFormat("kk:mm", Locale.ENGLISH);
         String timeString = formatter.format(new Date(lastUpdateTimestampSeconds*1000));
-        endJobInfoIntent.putExtra("instructionText", "Enter the quantity produced since " + timeString);
+        endJobInfoIntent.putExtra("instructionText", "Enter the quantity produced since " + timeString + ".\nCurrent total: " + currentQuantity);
 
         endJobResult.launch(endJobInfoIntent);
     }

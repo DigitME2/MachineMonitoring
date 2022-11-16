@@ -6,8 +6,8 @@ android {
         applicationId "uk.samban.machinemonitoring"
         minSdkVersion 24
         targetSdkVersion 33
-        versionCode 10
-        versionName "7.1"
+        versionCode 11
+        versionName "7.2a"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

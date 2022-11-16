@@ -131,6 +131,7 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                     });
 
+            Log.d(TAG, "POSTing to " + url);
             queue.add(jsonObjectRequest);
         } catch (Exception e) {
             e.printStackTrace();

@@ -60,6 +60,7 @@ public abstract class LoggedInActivity extends AppCompatActivity {
                             finish();
                         });
 
+                Log.d(TAG, "POSTing to " + url);
                 queue.add(jsonObjectRequest);
             } catch (Exception e) {
                 e.printStackTrace();

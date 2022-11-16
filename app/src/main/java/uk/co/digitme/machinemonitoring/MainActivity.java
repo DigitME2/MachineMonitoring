@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.v("ErrorListener", String.valueOf(error));
         });
+        Log.d(TAG, "GET " + url);
         queue.add(jsonObjectRequest);
     }
 

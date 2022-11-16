@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        mAddressText.setText(dbHelper.getServerAddress());
         // On the first run, try to get server address immediately
         if (prefs.getBoolean("firstrun", true)) {
             discoverServer();

@@ -64,9 +64,11 @@ public class DbHelper extends SQLiteOpenHelper {
             String address;
             try {
                 address = cursor.getString(cursor.getColumnIndex(COLUMN_SERVER_ADDRESS));
-                cursor.close();
             } catch (CursorIndexOutOfBoundsException e) {
                 address = "";
+            } finally {
+                cursor.close();
+                db.close();
             }
             return address;
         }
@@ -84,6 +86,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
         db.update("SETTINGS", cv, "ID = ?", new String[] {"1"});
         Log.d(TAG, "Saving server address: " + address);
+        db.close();
     }
 
     @SuppressLint("Range")

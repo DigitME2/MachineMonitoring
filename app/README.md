@@ -16,7 +16,7 @@ This requests information from the user to start a new job, which is then sent t
 
 SETTING IN PROGRESS
 "state":"setting" launches a "setting" activity, a special type of job.
-This response should also contain "wo_number" and "colour".
+This response should also contain "job_number" and "colour".
 The end job button requests additional information from the user before communicating to the server.
 
 JOB IN PROGRESS

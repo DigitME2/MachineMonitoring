@@ -118,7 +118,7 @@ public class Workflow {
 
         // Get additional data from the response, to pass to the next activity
         machineId = serverResponse.getInt("machine_id");
-        jobNumber = serverResponse.getString("wo_number");
+        jobNumber = serverResponse.getString("job_number");
         currentActivityCodeId = serverResponse.getInt("current_activity_code_id");
         requestedDataOnEnd = serverResponse.getJSONObject("requested_data_on_end");
         activityCodesString = serverResponse.getJSONArray("activity_codes").toString();

@@ -127,7 +127,7 @@ public abstract class JobActivityBase extends LoggedInActivity {
             activityCodeSpinner.setOnItemSelectedListener(listener);
         }
         try {
-            webSocketUri = dbHelper.getServerURI();
+            webSocketUri = dbHelper.getWebsocketUpdatesURI();
         } catch (URISyntaxException e) {
             Toast.makeText(getApplicationContext(), "Could not parse server URI", Toast.LENGTH_LONG).show();
         }
@@ -254,20 +254,31 @@ public abstract class JobActivityBase extends LoggedInActivity {
         @Override
         public void onOpen() {
             Log.i(TAG, "websocket connected");
-            JSONObject machineIdResponse = new JSONObject();
+            JSONObject uuidResponse = new JSONObject();
             try {
-                machineIdResponse.put("machine_id", machineId);
+                uuidResponse.put("device_uuid", dbHelper.getDeviceUuid());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            this.send(machineIdResponse.toString());
+            this.send(uuidResponse.toString());
         }
 
         @Override
         public void onTextReceived(String message) {
             runOnUiThread(() -> {
-                Log.i(TAG, "websocket message: " + message);
-                setActivityCodeSpinner(Integer.parseInt(message));
+                try {
+                    JSONObject websocketMessage = new JSONObject(message);
+                    String action = (String) websocketMessage.get("action");
+                    if (action.equals("activity_change")){
+                        int newActivityCodeId = websocketMessage.getInt("activity_code_id");
+                        setActivityCodeSpinner(newActivityCodeId);
+                    }
+                    else if (action.equals("logout")){
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             });
         }
 

@@ -90,7 +90,7 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public URI getServerURI() throws URISyntaxException {
+    public URI getWebsocketUpdatesURI() throws URISyntaxException {
         URI uri;
         String address = this.getServerAddress();
 
@@ -107,7 +107,7 @@ public class DbHelper extends SQLiteOpenHelper {
         } else {
             port = ":" + uri.getPort();
         }
-        return new URI(scheme + uri.getHost() + port + "/api/activity-updates");
+        return new URI(scheme + uri.getHost() + port + "/api/input-device-updates");
     }
 
     @SuppressLint("Range")

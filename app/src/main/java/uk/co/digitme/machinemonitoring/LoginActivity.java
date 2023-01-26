@@ -36,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
 
     TextView mMachineNameText;
+    TextView mServerAddressText;
     EditText userIdEditText;
     EditText pinCodeEditText;
     Button mSignInButton;
@@ -58,12 +59,16 @@ public class LoginActivity extends AppCompatActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         mMachineNameText = findViewById(R.id.machine_name);
+        mServerAddressText = findViewById(R.id.server_address);
         userIdEditText = findViewById(R.id.login_id);
         pinCodeEditText = findViewById(R.id.login_password);
         mSignInButton = findViewById(R.id.sign_in_button);
 
         // Set the machine text
         mMachineNameText.setText(getIntent().getStringExtra("machineText"));
+
+        // Set the server address text
+        mServerAddressText.setText("Server: " + dbHelper.getServerAddress());
 
         // Focus on the user ID on startup
         userIdEditText.requestFocus();

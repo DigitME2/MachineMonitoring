@@ -81,7 +81,7 @@ public class JobPausedActivity extends JobActivityBase {
         });
 
         try {
-            webSocketUri = dbHelper.getServerURI();
+            webSocketUri = dbHelper.getWebsocketUpdatesURI();
         } catch (URISyntaxException e) {
             Toast.makeText(getApplicationContext(), "Could not parse server URI", Toast.LENGTH_LONG).show();
         }
@@ -166,13 +166,13 @@ public class PausedJobWebSocketClient extends WebSocketClient {
     @Override
     public void onOpen() {
         Log.i(TAG, "websocket connected");
-        JSONObject machineIdResponse = new JSONObject();
+        JSONObject uuidResponse = new JSONObject();
         try {
-            machineIdResponse.put("machine_id", machineId);
+            uuidResponse.put("device_uuid", dbHelper.getDeviceUuid());
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        this.send(machineIdResponse.toString());
+        this.send(uuidResponse.toString());
     }
 
     @Override

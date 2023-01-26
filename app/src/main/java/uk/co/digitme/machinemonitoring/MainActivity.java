@@ -169,27 +169,35 @@ public class MainActivity extends AppCompatActivity {
      */
     private void checkState() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = dbHelper.getServerAddress() + "/check-state?device_uuid=" + dbHelper.getDeviceUuid();
-        @SuppressLint("SetTextI18n") JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
-                url,
-                null,
-                response -> {
-                    try {
-                        checkStateResponseHandler(response);
-                    } catch (JSONException e) {
-                        showError("Error parsing server response");
-                    }
-                }, error -> {
-            // Show a different error message depending on the error
-            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                showError("Could not connect");
-            } else if (error instanceof ServerError) {
-                showError("Could not connect to server");
-            }
-            Log.v("ErrorListener", String.valueOf(error));
-        });
-        Log.d(TAG, "GET " + url);
-        queue.add(jsonObjectRequest);
+        try {
+            String url = dbHelper.getServerAddress() + "/check-state?device_uuid=" + dbHelper.getDeviceUuid();
+            @SuppressLint("SetTextI18n") JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
+                    url,
+                    null,
+                    response -> {
+                        try {
+                            checkStateResponseHandler(response);
+                        } catch (JSONException e) {
+                            showError("Error parsing server response");
+                        }
+                    }, error -> {
+                // Show a different error message depending on the error
+                if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                    showError("Could not connect");
+                } else if (error instanceof ServerError) {
+                    showError("Could not connect to server");
+                } else {
+                    showError(error.getMessage());
+                }
+                Log.v("ErrorListener", String.valueOf(error));
+            });
+            Log.d(TAG, "GET " + url);
+            queue.add(jsonObjectRequest);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            showError("Error in server address");
+        }
     }
 
 

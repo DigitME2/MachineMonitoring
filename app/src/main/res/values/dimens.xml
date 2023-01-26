@@ -8,6 +8,9 @@
     <dimen name="form_entry_button_height">75dp</dimen>
     <dimen name="form_entry_button_text_size">25sp</dimen>
 
+
+    <dimen name="server_address_text">15sp</dimen>
+
     <dimen name="form_entry_inline_text_size">25sp</dimen>
     <dimen name="form_entry_text_padding">10dp</dimen>
 

@@ -26,6 +26,7 @@ import org.json.JSONObject;
 
 import java.util.Objects;
 
+import uk.co.digitme.machinemonitoring.CustomFlow1.Custom1Workflow;
 import uk.co.digitme.machinemonitoring.Default.Workflow;
 import uk.co.digitme.machinemonitoring.Helpers.DbHelper;
 import uk.co.digitme.machinemonitoring.Helpers.OnOneOffClickListener;
@@ -222,6 +223,10 @@ public class MainActivity extends AppCompatActivity {
 
                 case "running_total":
                     workflow = new RunningTotalWorkflow(getApplicationContext(), response);
+                    break;
+
+                case "custom_1":
+                    workflow = new Custom1Workflow(getApplicationContext(), response);
                     break;
 
                 default:

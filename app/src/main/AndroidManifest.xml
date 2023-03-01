@@ -27,6 +27,7 @@
         <activity android:name=".Pausable.PausableJobActivity" />
         <activity android:name=".RunningTotal.RunningTotalJobActivity" />
         <activity android:name=".CustomFlow1.Custom1JobActivity" />
+        <activity android:name=".CustomFlow1.Custom1PausedActivity" />
         <activity android:name=".DataEntryActivity" />
         <activity android:name=".SettingsActivity" />
     </application>

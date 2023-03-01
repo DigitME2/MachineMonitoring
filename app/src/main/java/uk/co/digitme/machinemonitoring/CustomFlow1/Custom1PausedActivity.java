@@ -4,8 +4,10 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +19,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,8 +53,10 @@ public class Custom1PausedActivity extends JobActivityBase {
     private int machineId;
     private int currentActivityId;
 
-    public Spinner activityCodeCategorySpinner;
+    public Spinner categorySpinner;
+    public Spinner componentSpinner;
 
+    public Spinner filteredActivityCodeSpinner;
     PausedJobWebSocketClient pausedJobWebSocketClient;
 
     @Override
@@ -96,21 +101,71 @@ public class Custom1PausedActivity extends JobActivityBase {
         pausedJobWebSocketClient.connect();
 
 
-        ArrayAdapter<ActivityCode> activityCodeAdapter = new ArrayAdapter<> (this, R.layout.spinner_item, activityCodes);
-        // Set up the spinner for the downtime codes
-        activityCodeCategorySpinner = findViewById(R.id.activity_code_category_spinner);
-        if (activityCodeCategorySpinner != null) {
-            if (activityCodes != null) {
-                activityCodeAdapter.setDropDownViewResource(R.layout.spinner_item);
-                activityCodeCategorySpinner.setAdapter(activityCodeAdapter);
-                //Set the spinner to show the current activity code
-                int current_activity_code_id = getIntent().getIntExtra("currentActivityCodeId", 0);
-                setActivityCodeSpinner(current_activity_code_id);
+        // Components spinner
+        ArrayList<String> components = new ArrayList<>(getIntent().getStringArrayListExtra("components"));
+        ArrayAdapter<String> componentSpinnerAdapter = new ArrayAdapter<> (this, R.layout.custom1_spinner_item, components);
+        componentSpinner = findViewById(R.id.component_spinner);
+        if (componentSpinner != null) {
+            componentSpinnerAdapter.setDropDownViewResource(R.layout.spinner_item);
+            componentSpinner.setAdapter(componentSpinnerAdapter);
+        }
+
+        // TODO Check why these spinners are so sluggish
+
+        // Get categories
+        ArrayList<Custom1Category> categories = new ArrayList<>();
+        try {
+            JSONArray jsonCategories = new JSONArray(getIntent().getStringExtra("categories"));
+            int len = jsonCategories.length();
+            for (int i = 0; i < len; i++) {
+                JSONObject jso = (JSONObject) jsonCategories.get(i);
+                categories.add(new Custom1Category(jso));
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        // Category spinner
+        ArrayAdapter<Custom1Category> categorySpinnerAdapter = new ArrayAdapter<> (this, R.layout.custom1_spinner_item, categories);
+        categorySpinner = findViewById(R.id.category_spinner);
+        if (categorySpinner != null) {
+            categorySpinnerAdapter.setDropDownViewResource(R.layout.spinner_item);
+            categorySpinner.setAdapter(categorySpinnerAdapter);
+            // Add listener to filter the activity code dropdown
+            CategorySpinnerInteractionListener listener = new CategorySpinnerInteractionListener();
+            categorySpinner.setOnTouchListener(listener);
+            categorySpinner.setOnItemSelectedListener(listener);
+        }
+
+        filteredActivityCodeSpinner = findViewById(R.id.filtered_activity_code_spinner);
+        filterActivityCodes(categories.get(0).getCategory());
+    }
+
+    private void filterActivityCodes(String category) {
+        // Get the activity codes. Custom flow 1 requires that the activity codes have a category assigned
+        ArrayList<Custom1ActivityCode> custom1ActivityCodes = new ArrayList<>();
+        try {
+            JSONArray jsonActivityCodes = new JSONArray(getIntent().getStringExtra("activityCodes"));
+            int len = jsonActivityCodes.length();
+            for (int i = 0; i < len; i++) {
+                JSONObject jso = (JSONObject) jsonActivityCodes.get(i);
+                if (jso.getString("category").equals(category)) {
+                    custom1ActivityCodes.add(new Custom1ActivityCode(jso));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        // Downtime code spinner
+        ArrayAdapter<Custom1ActivityCode> activityCodeAdapter = new ArrayAdapter<> (this, R.layout.custom1_spinner_item, custom1ActivityCodes);
+        filteredActivityCodeSpinner = findViewById(R.id.filtered_activity_code_spinner);
+        if (filteredActivityCodeSpinner != null) {
+            activityCodeAdapter.setDropDownViewResource(R.layout.spinner_item);
+            filteredActivityCodeSpinner.setAdapter(activityCodeAdapter);
             // As soon as the reason is changed, tell the server
             SpinnerInteractionListener listener = new SpinnerInteractionListener();
-            activityCodeCategorySpinner.setOnTouchListener(listener);
-            activityCodeCategorySpinner.setOnItemSelectedListener(listener);
+            filteredActivityCodeSpinner.setOnTouchListener(listener);
+            filteredActivityCodeSpinner.setOnItemSelectedListener(listener);
+            // TODO test/implement this
         }
     }
 
@@ -157,6 +212,32 @@ public class Custom1PausedActivity extends JobActivityBase {
             if (e.getMessage() != null) {
                 Log.e(TAG, e.getMessage());
             }
+        }
+    }
+
+
+    public class CategorySpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
+
+        boolean userSelect = false;
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            userSelect = true;
+            v.performClick();
+            return false;
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+            if (userSelect) {
+                Custom1Category c = (Custom1Category) adapterView.getItemAtPosition(pos);
+                filterActivityCodes(c.getCategory());
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+
         }
     }
 

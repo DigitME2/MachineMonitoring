@@ -193,7 +193,9 @@ public class Custom1PausedActivity extends JobActivityBase {
             JSONObject jsonBody = new JSONObject();
 
             jsonBody.put("device_uuid", dbHelper.getDeviceUuid());
-            jsonBody.put("downtime_reason", activityCodeSpinner.getSelectedItem().toString());
+            jsonBody.put("component", componentSpinner.getSelectedItem().toString());
+            jsonBody.put("category", categorySpinner.getSelectedItem().toString());
+            jsonBody.put("downtime_reason", filteredActivityCodeSpinner.getSelectedItem().toString());
             jsonBody.put("notes", mNotes.getText().toString());
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,

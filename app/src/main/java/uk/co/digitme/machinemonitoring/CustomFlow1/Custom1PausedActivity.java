@@ -110,8 +110,6 @@ public class Custom1PausedActivity extends JobActivityBase {
             componentSpinner.setAdapter(componentSpinnerAdapter);
         }
 
-        // TODO Check why these spinners are so sluggish
-
         // Get categories
         ArrayList<Custom1Category> categories = new ArrayList<>();
         try {
@@ -165,7 +163,6 @@ public class Custom1PausedActivity extends JobActivityBase {
             SpinnerInteractionListener listener = new SpinnerInteractionListener();
             filteredActivityCodeSpinner.setOnTouchListener(listener);
             filteredActivityCodeSpinner.setOnItemSelectedListener(listener);
-            // TODO test/implement this
         }
     }
 
